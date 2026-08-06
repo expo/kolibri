@@ -1,0 +1,104 @@
+FILE: nativePointer.kt
+    package io.github.expo.kolibri
+
+    public final annotation class NativeMethod : R|kotlin/Annotation| {
+        public constructor(): R|io/github/expo/kolibri/NativeMethod| {
+            super<R|kotlin/Any|>()
+        }
+
+    }
+    public abstract class NativeBase : R|kotlin/Any| {
+        public constructor(nativePointer: R|kotlin/Long|): R|io/github/expo/kolibri/NativeBase| {
+            super<R|kotlin/Any|>()
+        }
+
+        field:@R|kotlin/jvm/JvmField|() protected final val nativePointer: R|kotlin/Long| = R|<local>/nativePointer|
+            protected get(): R|kotlin/Long|
+
+    }
+    public final class Handle : R|io/github/expo/kolibri/NativeBase| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/Handle| {
+            super<R|io/github/expo/kolibri/NativeBase|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun isNumber(): R|kotlin/Boolean|
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun add(x: R|kotlin/Int|): R|kotlin/Int|
+
+        private final external fun add(pointer: R|kotlin/Long|, x: R|kotlin/Int|): R|kotlin/Int|
+
+        private final external fun isNumber(pointer: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
+    public final class Overloaded : R|io/github/expo/kolibri/NativeBase| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/Overloaded| {
+            super<R|io/github/expo/kolibri/NativeBase|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun foo(a: R|kotlin/Int|): R|kotlin/Int|
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun foo(a: R|kotlin/Int|, b: R|kotlin/Int|): R|kotlin/Int|
+
+        private final external fun foo(pointer: R|kotlin/Long|, a: R|kotlin/Int|): R|kotlin/Int|
+
+        private final external fun foo(pointer: R|kotlin/Long|, a: R|kotlin/Int|, b: R|kotlin/Int|): R|kotlin/Int|
+
+    }
+    public final fun box(): R|kotlin/String| {
+        lval cls: R|java/lang/Class<io/github/expo/kolibri/Handle>| = <getClass>(Q|io/github/expo/kolibri/Handle|).R|kotlin/jvm/java|<R|io/github/expo/kolibri/Handle|>
+        lval stub: R|java/lang/reflect/Method!| = R|<local>/cls|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(isNumber), vararg(<getClass>(Q|kotlin/Long|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Long|>))
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/stub|.R|java/lang/reflect/Method.modifiers|).R|kotlin/Boolean.not|() ->  {
+                ^box String(Fail: isNumber(Long) is not native)
+            }
+        }
+
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isPrivate*s|(R|<local>/stub|.R|java/lang/reflect/Method.modifiers|).R|kotlin/Boolean.not|() ->  {
+                ^box String(Fail: isNumber(Long) is not private)
+            }
+        }
+
+        lval original: R|java/lang/reflect/Method!| = R|<local>/cls|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(isNumber))
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/original|.R|java/lang/reflect/Method.modifiers|) ->  {
+                ^box String(Fail: isNumber is still native)
+            }
+        }
+
+        lval addStub: R|java/lang/reflect/Method!| = R|<local>/cls|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(add), vararg(<getClass>(Q|kotlin/Long|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Long|>, <getClass>(Q|kotlin/Int|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Int|>))
+        when () {
+            !=(R|<local>/addStub|.R|java/lang/reflect/Method.returnType|, <getClass>(Q|kotlin/Int|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Int|>) ->  {
+                ^box String(Fail: add(Long, Int) has wrong return type)
+            }
+        }
+
+        lval overloaded: R|java/lang/Class<io/github/expo/kolibri/Overloaded>| = <getClass>(Q|io/github/expo/kolibri/Overloaded|).R|kotlin/jvm/java|<R|io/github/expo/kolibri/Overloaded|>
+        lval long: R|java/lang/Class<kotlin/Long>?| = <getClass>(Q|kotlin/Long|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Long|>
+        lval int: R|java/lang/Class<kotlin/Int>?| = <getClass>(Q|kotlin/Int|).R|kotlin/jvm/javaPrimitiveType|<R|kotlin/Int|>
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/overloaded|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(foo), vararg(R|<local>/long|, R|<local>/int|)).R|java/lang/reflect/Method.modifiers|).R|kotlin/Boolean.not|() ->  {
+                ^box String(Fail: foo(Long, Int) is not native)
+            }
+        }
+
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/overloaded|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(foo), vararg(R|<local>/long|, R|<local>/int|, R|<local>/int|)).R|java/lang/reflect/Method.modifiers|).R|kotlin/Boolean.not|() ->  {
+                ^box String(Fail: foo(Long, Int, Int) is not native)
+            }
+        }
+
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/overloaded|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(foo), vararg(R|<local>/int|)).R|java/lang/reflect/Method.modifiers|) ->  {
+                ^box String(Fail: foo(Int) is still native)
+            }
+        }
+
+        when () {
+            Q|java/lang/reflect/Modifier|.R|java/lang/reflect/Modifier.isNative*s|(R|<local>/overloaded|.R|SubstitutionOverride<java/lang/Class.getDeclaredMethod: R|java/lang/reflect/Method!|>|(String(foo), vararg(R|<local>/int|, R|<local>/int|)).R|java/lang/reflect/Method.modifiers|) ->  {
+                ^box String(Fail: foo(Int, Int) is still native)
+            }
+        }
+
+        ^box String(OK)
+    }

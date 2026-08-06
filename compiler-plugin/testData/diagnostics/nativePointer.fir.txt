@@ -1,0 +1,32 @@
+FILE: nativePointer.kt
+    package io.github.expo.kolibri
+
+    public final annotation class NativeMethod : R|kotlin/Annotation| {
+        public constructor(): R|io/github/expo/kolibri/NativeMethod| {
+            super<R|kotlin/Any|>()
+        }
+
+    }
+    public abstract class NativeBase : R|kotlin/Any| {
+        public constructor(nativePointer: R|kotlin/Long|): R|io/github/expo/kolibri/NativeBase| {
+            super<R|kotlin/Any|>()
+        }
+
+        field:@R|kotlin/jvm/JvmField|() protected final val nativePointer: R|kotlin/Long| = R|<local>/nativePointer|
+            protected get(): R|kotlin/Long|
+
+    }
+    public final class Handle : R|io/github/expo/kolibri/NativeBase| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/Handle| {
+            super<R|io/github/expo/kolibri/NativeBase|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun isNumber(): R|kotlin/Boolean|
+
+        private final external fun isNumber(pointer: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
+    public final fun test(handle: R|io/github/expo/kolibri/Handle|): R|kotlin/Unit| {
+        lval b: R|kotlin/Boolean| = R|<local>/handle|.R|io/github/expo/kolibri/Handle.isNumber|()
+        R|<local>/b|.<Unresolved name: inc>#()
+    }

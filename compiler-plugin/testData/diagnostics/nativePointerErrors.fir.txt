@@ -1,0 +1,73 @@
+FILE: nativePointerErrors.kt
+    package io.github.expo.kolibri
+
+    public final annotation class NativeMethod : R|kotlin/Annotation| {
+        public constructor(): R|io/github/expo/kolibri/NativeMethod| {
+            super<R|kotlin/Any|>()
+        }
+
+    }
+    public final annotation class AsNativePointer : R|kotlin/Annotation| {
+        public constructor(): R|io/github/expo/kolibri/AsNativePointer| {
+            super<R|kotlin/Any|>()
+        }
+
+    }
+    public abstract class NativeObject : R|kotlin/Any| {
+        public constructor(nativePointer: R|kotlin/Long|): R|io/github/expo/kolibri/NativeObject| {
+            super<R|kotlin/Any|>()
+        }
+
+        field:@R|kotlin/jvm/JvmField|() public final val nativePointer: R|kotlin/Long| = R|<local>/nativePointer|
+            public get(): R|kotlin/Long|
+
+    }
+    public final class OtherHandle : R|io/github/expo/kolibri/NativeObject| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/OtherHandle| {
+            super<R|io/github/expo/kolibri/NativeObject|>(R|<local>/pointer|)
+        }
+
+    }
+    public final class GoodHandle : R|io/github/expo/kolibri/NativeObject| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/GoodHandle| {
+            super<R|io/github/expo/kolibri/NativeObject|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun consume(@R|io/github/expo/kolibri/AsNativePointer|() other: R|io/github/expo/kolibri/OtherHandle?|): R|kotlin/Boolean|
+
+        private final external fun consume(pointer: R|kotlin/Long|, other: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
+    public final class BodyHandle : R|io/github/expo/kolibri/NativeObject| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/BodyHandle| {
+            super<R|io/github/expo/kolibri/NativeObject|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final fun hasBody(): R|kotlin/Boolean| {
+            ^hasBody Boolean(true)
+        }
+
+        private final external fun hasBody(pointer: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
+    public final class NoField : R|kotlin/Any| {
+        public constructor(): R|io/github/expo/kolibri/NoField| {
+            super<R|kotlin/Any|>()
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun broken(): R|kotlin/Boolean|
+
+        private final external fun broken(pointer: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
+    @R|io/github/expo/kolibri/NativeMethod|() public final external fun topLevel(): R|kotlin/Boolean|
+    public final class WrongParam : R|io/github/expo/kolibri/NativeObject| {
+        public constructor(pointer: R|kotlin/Long|): R|io/github/expo/kolibri/WrongParam| {
+            super<R|io/github/expo/kolibri/NativeObject|>(R|<local>/pointer|)
+        }
+
+        @R|io/github/expo/kolibri/NativeMethod|() public final external fun wrong(@R|io/github/expo/kolibri/AsNativePointer|() value: R|kotlin/String|): R|kotlin/Boolean|
+
+        private final external fun wrong(pointer: R|kotlin/Long|, value: R|kotlin/Long|): R|kotlin/Boolean|
+
+    }
