@@ -1,0 +1,56 @@
+<svg width="1280" height="380" viewBox="0 0 1280 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Low-poly hummingbird (kolibri). Source artwork scaled into the 88..300 x 92..286 box. -->
+  <g transform="translate(27.06 23.13) scale(0.3311)">
+    <path d="M468 533L527 482L427.5 422.5L468 533Z" fill="#5C16C1"/>
+    <path d="M581 536L527 482L499 587L581 536Z" fill="#FF3C79"/>
+    <path d="M527 482L499 587L468 533L527 482Z" fill="#8A21DA"/>
+    <path d="M499 587L468 533L421 648L499 587Z" fill="#AA22D6"/>
+    <path d="M620 365L597 377L622 399.5L666 379L620 365Z" fill="#1846A5"/>
+    <path d="M676 406L666 379L640 419L676 406Z" fill="#621FD9"/>
+    <path d="M690.5 358.5L653 348L620 365L666 379L690.5 358.5Z" fill="#018DB7"/>
+    <path d="M601 343L597 377L653 348L601 343Z" fill="#00BFC4"/>
+    <path d="M523 420L505 458L562 427L523 420Z" fill="#0A57AE"/>
+    <path d="M527 482L562 427L505 458L527 482Z" fill="#3E41C6"/>
+    <path d="M593.5 472L562 427L527 482L593.5 472Z" fill="#E73DEA"/>
+    <path d="M647 479L616 438L593 472L647 479Z" fill="#8225E6"/>
+    <path d="M619 553L581 536L566 615L619 553Z" fill="#FF7723"/>
+    <path d="M487 662L421 648L364 755L487 662Z" fill="#4B0B95"/>
+    <path d="M364 755L421 648L293 794L364 755Z" fill="#7F16CF"/>
+    <path d="M293 794L421 648L341 705L293 794Z" fill="#FF48B1"/>
+    <path d="M421 648L341 705L405 587L421 648Z" fill="#7820F0"/>
+    <path d="M399 342L300 258.5L382.5 379L429 423.5L399 342Z" fill="#6118CA"/>
+    <path d="M332 496L394.5 534.5L453.5 491L332 496Z" fill="#FF6558"/>
+    <path d="M420 566L377.5 546L453.5 491L468 533L420 566Z" fill="#F1307A"/>
+    <path d="M300 258.5L383.5 375L237.5 300.5L192.5 208L300 258.5Z" fill="#741AE3"/>
+    <path d="M382.5 373L429 423.5L256 370L204 282.5L382.5 373Z" fill="#C124DC"/>
+    <path d="M441 459L429 423.5L236 363L299 439L441 459Z" fill="#F031B1"/>
+    <path d="M276.5 431.5L441 459L351 490L276.5 431.5Z" fill="#FE6A7A"/>
+    <path d="M441 459L453.5 491L332 496L441 459Z" fill="#FF5952"/>
+    <path d="M527 482L399 342L429 423.5L527 482Z" fill="#FF9114"/>
+    <path d="M421 648L468 533L420 566L405 587L421 648Z" fill="#6018CC"/>
+    <path d="M499 587L421 648L487 662L499 587Z" fill="#6218BF"/>
+    <path d="M566 615L499 587L487 662L566 615Z" fill="#EC2266"/>
+    <path d="M581 536L499 587L566 615L581 536Z" fill="#FF6F25"/>
+    <path d="M619 553L593 472L581 536L619 553Z" fill="#FE833F"/>
+    <path d="M527 482L593 472L581 536L527 482Z" fill="#FF8D58"/>
+    <path d="M647 479L593 472L619 553L647 479Z" fill="#A624EC"/>
+    <path d="M616 438L562 427L593 472L616 438Z" fill="#CA2EEA"/>
+    <path d="M562 427L548.5 370L523 420L562 427Z" fill="#0174AE"/>
+    <path d="M597 377L548.5 370L562 427L597 377Z" fill="#009EBC"/>
+    <path d="M601 343L548.5 370L597 377L601 343Z" fill="#00BEC1"/>
+    <path d="M597 377L562 427L623 400L597 377Z" fill="#0768C3"/>
+    <path d="M640 419L666 379L562 427L616 438L640 419Z" fill="#943EEF"/>
+    <path d="M640 419L616 438L647 479L676 406L640 419Z" fill="#5E1CD8"/>
+    <path d="M691 388L676 406L666 379L691 388Z" fill="#500FB4"/>
+    <path d="M666 379C716.8 358.6 787.333 345.5 816 342C816 342 714.5 365 691 388L666 379Z" fill="#4A0B9D"/>
+    <path d="M690.5 358.5C747.7 342.9 797.833 341 816 342C816 342 731.5 353 666 379L690.5 358.5Z" fill="#9B40F0"/>
+    <ellipse cx="625.5" cy="384.5" rx="17.5" ry="16.5" fill="#191847"/>
+    <circle cx="624.5" cy="380.5" r="6.5" fill="#FFFEFD"/>
+  </g>
+  <text x="412" y="190" fill="#4E2C62"
+        font-family="Fira Code, JetBrains Mono, SFMono-Regular, Menlo, monospace"
+        font-size="110" font-weight="700">Kolibri</text>
+  <text x="415" y="250" fill="#F88A42"
+        font-family="Fira Code, JetBrains Mono, SFMono-Regular, Menlo, monospace"
+        font-size="25" font-weight="400" letter-spacing="1.1">All the JNI. None of the boilerplate.</text>
+</svg>
