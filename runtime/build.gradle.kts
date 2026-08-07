@@ -1,16 +1,14 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
 import org.gradle.internal.os.OperatingSystem
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
-  `maven-publish`
+  alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-publishing {
-  publications {
-    create<MavenPublication>("maven") {
-      from(components["java"])
-    }
-  }
+mavenPublishing {
+  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
 }
 
 // All tests for this module (Kotlin and native) live in the sibling `tests` subproject.

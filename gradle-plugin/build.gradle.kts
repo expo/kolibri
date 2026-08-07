@@ -1,8 +1,15 @@
+import com.vanniktech.maven.publish.GradlePlugin
+import com.vanniktech.maven.publish.JavadocJar
+
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.buildconfig)
   alias(libs.plugins.gradle.plugin)
-  `maven-publish`
+  alias(libs.plugins.vanniktech.mavenPublish)
+}
+
+mavenPublishing {
+  configure(GradlePlugin(JavadocJar.Empty(), sourcesJar = true))
 }
 
 sourceSets {

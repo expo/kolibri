@@ -1,17 +1,16 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.buildconfig)
   alias(libs.plugins.gradle.java.test.fixtures)
   alias(libs.plugins.gradle.idea)
-  `maven-publish`
+  alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-publishing {
-  publications {
-    create<MavenPublication>("maven") {
-      from(components["java"])
-    }
-  }
+mavenPublishing {
+  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
 }
 
 val testDataDir = layout.projectDirectory.dir("testData")

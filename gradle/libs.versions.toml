@@ -1,4 +1,6 @@
 [versions]
+kolibri = "0.1.0"
+
 # https://github.com/JetBrains/kotlin
 kotlin = "2.1.20"
 
@@ -10,6 +12,9 @@ buildconfig = "5.5.1"
 
 # https://developer.android.com/build/releases/gradle-plugin
 agp = "8.10.1"
+
+# https://github.com/vanniktech/gradle-maven-publish-plugin
+vanniktech-mavenPublish = "0.30.0"
 
 [libraries]
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -32,6 +37,7 @@ android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", ve
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-mavenPublish" }
 
 gradle-java-test-fixtures = { id = "java-test-fixtures" }
 gradle-idea = { id = "idea" }

@@ -1,6 +1,12 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
   alias(libs.plugins.android.library)
-  `maven-publish`
+  alias(libs.plugins.vanniktech.mavenPublish)
+}
+
+mavenPublishing {
+  configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
 }
 
 // Prefab exports a whole directory as an include root. Kolibri's include root is the cpp/ dir
@@ -64,22 +70,10 @@ android {
       headers = prefabHeadersDir.get().asFile.path
     }
   }
-
-  publishing {
-    singleVariant("release")
-  }
 }
 
 // AGP's prefab packaging tasks (prefab<Variant>ConfigurePackage / prefab<Variant>Package) copy the
 // headers directory; make sure staging ran first.
 tasks.matching { it.name.startsWith("prefab") }.configureEach {
   dependsOn(stageKolibriPrefabHeaders)
-}
-
-publishing {
-  publications {
-    register<MavenPublication>("maven") {
-      afterEvaluate { from(components["release"]) }
-    }
-  }
 }
