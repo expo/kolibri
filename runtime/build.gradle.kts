@@ -1,6 +1,5 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
-import org.gradle.internal.os.OperatingSystem
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
@@ -40,7 +39,6 @@ val nativeBuildDir = layout.buildDirectory.dir("native")
 // snapshot). Each declares only the artifact it is responsible for; incremental compilation
 // within the dir is Ninja's job.
 val configureNative by tasks.registering(Exec::class) {
-  onlyIf { OperatingSystem.current().isMacOsX }
   inputs.dir(cppDir)
   outputs.file(nativeBuildDir.map { it.file("build.ninja") })
 
@@ -55,7 +53,6 @@ val configureNative by tasks.registering(Exec::class) {
 }
 
 val buildNative by tasks.registering(Exec::class) {
-  onlyIf { OperatingSystem.current().isMacOsX }
   dependsOn(configureNative)
   inputs.dir(cppDir)
   outputs.file(nativeBuildDir.map { it.file("libkolibri.a") })

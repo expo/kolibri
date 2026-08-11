@@ -1,5 +1,6 @@
 #include <kolibri/string_utils.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
