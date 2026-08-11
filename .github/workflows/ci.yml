@@ -35,10 +35,14 @@ jobs:
       - name: Run checks
         run: ./gradlew check --stacktrace
 
+      # always(), not failure(): the reports are the only record of how many tests actually ran.
+      # A task that is silently skipped still reports a green build, so keep the evidence.
       - name: Upload test reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: '**/build/reports/tests/'
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
           retention-days: 7
