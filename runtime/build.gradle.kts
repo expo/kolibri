@@ -16,6 +16,17 @@ dependencies {
   api(libs.kotlin.stdlib)
 }
 
+// Consumed as an artifact-only dependency, resolved by classifier:
+//   "io.github.expo.kolibri:runtime:<version>:cpp@zip"
+val cppSourcesZip by tasks.registering(Zip::class) {
+  archiveClassifier = "cpp"
+  from(layout.projectDirectory.dir("src/main/cpp"))
+}
+
+publishing.publications.named<MavenPublication>("maven") {
+  artifact(cppSourcesZip)
+}
+
 // --- Standalone native build (CMake + Ninja) -----------------------------------------------------
 // Kolibri's C++ is a static library that consumers link into their own shared library, so nothing
 // here ends up on any runtime path. Building it standalone as part of `check` proves the layer's
