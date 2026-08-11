@@ -14,8 +14,12 @@ val kolibriCppDir = rootProject.layout.projectDirectory.dir("runtime/src/main/cp
 val nativeBuildDir = layout.buildDirectory.dir("native")
 val nativeLibsDir = layout.buildDirectory.dir("native-libs")
 
+// CMake names the SHARED target's output per platform. System.loadLibrary() in Kolibri.load()
+// resolves the same mapping at runtime, so only the Gradle-side input/output wiring needs it.
+val nativeLibFileName =
+  if (OperatingSystem.current().isMacOsX) "libexpo-kolibri.dylib" else "libexpo-kolibri.so"
+
 val configureNative by tasks.registering(Exec::class) {
-  onlyIf { OperatingSystem.current().isMacOsX }
   inputs.dir(cppDir)
   inputs.dir(kolibriCppDir)
   outputs.file(nativeBuildDir.map { it.file("build.ninja") })
@@ -32,25 +36,22 @@ val configureNative by tasks.registering(Exec::class) {
 }
 
 val buildNative by tasks.registering(Exec::class) {
-  onlyIf { OperatingSystem.current().isMacOsX }
   dependsOn(configureNative)
   inputs.dir(cppDir)
   inputs.dir(kolibriCppDir)
-  outputs.file(nativeBuildDir.map { it.file("libexpo-kolibri.dylib") })
+  outputs.file(nativeBuildDir.map { it.file(nativeLibFileName) })
 
   commandLine("cmake", "--build", nativeBuildDir.get().asFile.path, "--target", "expo-kolibri")
 }
 
 val copyNativeLibs by tasks.registering(Copy::class) {
-  onlyIf { OperatingSystem.current().isMacOsX }
   dependsOn(buildNative)
-  from(nativeBuildDir.map { it.file("libexpo-kolibri.dylib") })
+  from(nativeBuildDir.map { it.file(nativeLibFileName) })
   into(nativeLibsDir)
 }
 
 tasks.named<Test>("test") {
   useJUnitPlatform()
-  onlyIf { OperatingSystem.current().isMacOsX }
   dependsOn(copyNativeLibs)
   systemProperty("java.library.path", nativeLibsDir.get().asFile.path)
 }
