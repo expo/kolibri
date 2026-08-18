@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.extensions.predicate.LookupPredicate
+import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
@@ -43,7 +44,7 @@ class NativePointerStubGenerator(session: FirSession) : FirDeclarationGeneration
   private fun annotatedFunctions(classSymbol: FirClassSymbol<*>): List<FirNamedFunctionSymbol> =
     classSymbol.declarationSymbols
       .filterIsInstance<FirNamedFunctionSymbol>()
-      .filter { it.hasAnnotation(NATIVE_METHOD_CLASS_ID, session) }
+      .filter { session.predicateBasedProvider.matches(PREDICATE, it) }
 
   override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> =
     annotatedFunctions(classSymbol).mapTo(mutableSetOf()) { it.name }
