@@ -6,7 +6,7 @@ plugins {
 }
 
 mavenPublishing {
-  configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
+  configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = false))
 }
 
 // Prefab exports a whole directory as an include root. Kolibri's include root is the cpp/ dir

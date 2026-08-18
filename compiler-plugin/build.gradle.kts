@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
+import org.gradle.api.component.AdhocComponentWithVariants
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
@@ -10,7 +11,16 @@ plugins {
 }
 
 mavenPublishing {
-  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
+  configure(KotlinJvm(JavadocJar.None(), sourcesJar = true))
+}
+
+// `java-test-fixtures` wires its variants into the `java` component, so the test-fixtures jar and
+// its sources jar would be published too. They exist only for this project's own test framework —
+// nothing outside the build consumes them, and every published file counts against Maven Central's
+// per-organization file-count limit.
+(components["java"] as AdhocComponentWithVariants).let { java ->
+  listOf("testFixturesApiElements", "testFixturesRuntimeElements", "testFixturesSourcesElements")
+    .forEach { java.withVariantsFromConfiguration(configurations[it]) { skip() } }
 }
 
 val testDataDir = layout.projectDirectory.dir("testData")

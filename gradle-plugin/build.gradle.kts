@@ -9,7 +9,7 @@ plugins {
 }
 
 mavenPublishing {
-  configure(GradlePlugin(JavadocJar.Empty(), sourcesJar = true))
+  configure(GradlePlugin(JavadocJar.None(), sourcesJar = true))
 }
 
 sourceSets {

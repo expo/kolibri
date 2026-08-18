@@ -7,7 +7,7 @@ plugins {
 }
 
 mavenPublishing {
-  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
+  configure(KotlinJvm(JavadocJar.None(), sourcesJar = true))
 }
 
 // All tests for this module (Kotlin and native) live in the sibling `tests` subproject.
