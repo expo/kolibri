@@ -1,5 +1,5 @@
 [versions]
-kolibri = "0.1.1"
+kolibri = "0.1.2"
 
 # https://github.com/JetBrains/kotlin
 kotlin = "2.1.20"
