@@ -59,6 +59,21 @@ class BinaryCodecTests : NativeTestBase() {
   }
 
   @Test
+  fun `long strings reuse scratch storage without changing their format`() {
+    val values = listOf(
+      "ascii".repeat(256),
+      "zażółć 日本語 😀 ".repeat(80),
+      ("prefix" + '\uD83D' + "suffix").repeat(128),
+    )
+
+    for (value in values) {
+      val length = BinaryBuffer.shared().encodeValue(value)
+      assertTrue(length > 0)
+      assertEquals(value, BinaryBuffer.shared().decodeValue(length))
+    }
+  }
+
+  @Test
   fun `the shared buffer is stable per thread and distinct across threads`() {
     val here = nativeBufferAddress()
     assertEquals(here, nativeBufferAddress())

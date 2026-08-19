@@ -56,13 +56,26 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
 
   fun putString(value: String) = apply {
     val size = value.length
+    val useScratch = size in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS
 
     if (value.isAscii()) {
       buffer.putInt(size)
-      buffer.put(value.toByteArray(Charsets.ISO_8859_1))
+      if (useScratch) {
+        val bytes = stringScratch.get().bytes(size)
+        value.copyAsciiTo(bytes)
+        buffer.put(bytes, 0, size)
+      } else {
+        buffer.put(value.toByteArray(Charsets.ISO_8859_1))
+      }
     } else {
       buffer.putInt(-size)
-      buffer.asCharBuffer().put(value)
+      if (useScratch) {
+        val chars = stringScratch.get().chars(size)
+        value.toCharArray(chars, 0, 0, size)
+        buffer.asCharBuffer().put(chars, 0, size)
+      } else {
+        buffer.asCharBuffer().put(value)
+      }
       position += size * Char.SIZE_BYTES
     }
   }
@@ -82,15 +95,28 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     val isAscii = prefix >= 0
 
     return if (isAscii) {
-      val bytes = ByteArray(prefix)
-      buffer.get(bytes)
-      String(bytes, Charsets.ISO_8859_1)
+      if (prefix in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS) {
+        val bytes = stringScratch.get().bytes(prefix)
+        buffer.get(bytes, 0, prefix)
+        String(bytes, 0, prefix, Charsets.ISO_8859_1)
+      } else {
+        val bytes = ByteArray(prefix)
+        buffer.get(bytes)
+        String(bytes, Charsets.ISO_8859_1)
+      }
     } else {
       val size = -prefix
-      val chars = CharArray(size)
-      buffer.asCharBuffer().get(chars)
+      val value = if (size in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS) {
+        val chars = stringScratch.get().chars(size)
+        buffer.asCharBuffer().get(chars, 0, size)
+        String(chars, 0, size)
+      } else {
+        val chars = CharArray(size)
+        buffer.asCharBuffer().get(chars)
+        String(chars)
+      }
       position += size * Char.SIZE_BYTES
-      String(chars)
+      value
     }
   }
 
