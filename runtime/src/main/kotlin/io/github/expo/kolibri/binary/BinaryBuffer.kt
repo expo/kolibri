@@ -56,7 +56,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
 
   fun putString(value: String) = apply {
     val size = value.length
-    val useScratch = size in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS
+    val useScratch = size <= MAX_RETAINED_STRING_UNITS
 
     if (value.isAscii()) {
       buffer.putInt(size)
@@ -95,7 +95,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     val isAscii = prefix >= 0
 
     return if (isAscii) {
-      if (prefix in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS) {
+      if (prefix <= MAX_RETAINED_STRING_UNITS) {
         val bytes = stringScratch.get().bytes(prefix)
         buffer.get(bytes, 0, prefix)
         String(bytes, 0, prefix, Charsets.ISO_8859_1)
@@ -106,7 +106,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
       }
     } else {
       val size = -prefix
-      val value = if (size in STRING_SCRATCH_THRESHOLD..MAX_RETAINED_STRING_UNITS) {
+      val value = if (size <= MAX_RETAINED_STRING_UNITS) {
         val chars = stringScratch.get().chars(size)
         buffer.asCharBuffer().get(chars, 0, size)
         String(chars, 0, size)
