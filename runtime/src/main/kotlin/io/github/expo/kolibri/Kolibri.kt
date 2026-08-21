@@ -6,6 +6,11 @@ object Kolibri {
   @Volatile
   private var loaded = false
 
+  /**
+   * Whether [load] has run.
+   */
+  val isLoaded: Boolean get() = loaded
+
   fun load() = synchronized(this) {
     if (loaded) {
       return
