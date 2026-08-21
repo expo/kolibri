@@ -3,6 +3,7 @@
 #include <concepts>
 #include <jni.h>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 #include <kolibri/NativeObject.h>
@@ -22,10 +23,14 @@ namespace expo::kolibri {
         return fn();
       } catch (const std::exception& e) {
         throwJavaRuntimeException(env, e.what());
-        return Return{};
+        if constexpr (std::is_void_v<Return>) {
+          return;
+        } else {
+          return Return{};
+        }
       }
     }
-  } // namespace detail
+  }
 
   template<bool Guard, typename Func>
   ALWAYS_INLINE auto runBound(JNIEnv* env, Func&& fn) -> std::invoke_result_t<Func> {
@@ -133,4 +138,4 @@ namespace expo::kolibri {
       );
     }
   };
-} // namespace expo::kolibri
+}

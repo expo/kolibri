@@ -208,7 +208,7 @@ namespace expo::kolibri {
     if constexpr (std::is_void_v<R>) {
       env->CallVoidMethodA(receiver, id, args);
       check();
-      return R{};
+      return;
     } else if constexpr (std::is_same_v<R, jboolean>) {
       R result = env->CallBooleanMethodA(receiver, id, args);
       check();
@@ -263,7 +263,7 @@ namespace expo::kolibri {
     if constexpr (std::is_void_v<R>) {
       env->CallStaticVoidMethodA(clazz, id, args);
       check();
-      return R{};
+      return;
     } else if constexpr (std::is_same_v<R, jboolean>) {
       R result = env->CallStaticBooleanMethodA(clazz, id, args);
       check();
