@@ -11,7 +11,10 @@ plugins {
 }
 
 mavenPublishing {
-  configure(KotlinJvm(JavadocJar.None(), sourcesJar = true))
+  // Maven Central rejects a deployment that has no `-javadoc.jar` next to the main artifact, so the
+  // jar has to be published even though Kolibri renders no API docs. `JavadocJar.Empty()` ships an
+  // empty one, which satisfies the validator; switch to `JavadocJar.Dokka(..)` if real docs land.
+  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
 }
 
 // `java-test-fixtures` wires its variants into the `java` component, so the test-fixtures jar and

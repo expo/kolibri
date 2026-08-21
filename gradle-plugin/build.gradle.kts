@@ -9,7 +9,10 @@ plugins {
 }
 
 mavenPublishing {
-  configure(GradlePlugin(JavadocJar.None(), sourcesJar = true))
+  // Maven Central rejects a deployment that has no `-javadoc.jar` next to the main artifact, so the
+  // jar has to be published even though Kolibri renders no API docs. `JavadocJar.Empty()` ships an
+  // empty one, which satisfies the validator; switch to `JavadocJar.Dokka(..)` if real docs land.
+  configure(GradlePlugin(JavadocJar.Empty(), sourcesJar = true))
 }
 
 sourceSets {
