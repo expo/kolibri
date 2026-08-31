@@ -25,9 +25,9 @@ FILE: nativePointer.kt
 
         @R|io/github/expo/kolibri/NativeMethod|() public final external fun add(x: R|kotlin/Int|): R|kotlin/Int|
 
-        private final external fun add(pointer: R|kotlin/Long|, x: R|kotlin/Int|): R|kotlin/Int|
-
         private final external fun isNumber(pointer: R|kotlin/Long|): R|kotlin/Boolean|
+
+        private final external fun add(pointer: R|kotlin/Long|, x: R|kotlin/Int|): R|kotlin/Int|
 
     }
     public final class Overloaded : R|io/github/expo/kolibri/NativeBase| {
