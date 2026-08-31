@@ -118,6 +118,11 @@ kotlin {
   compilerOptions {
     optIn.add("org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
     optIn.add("org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI")
+    // Kotlin 2.2 marked the checker/IR surfaces this plugin is built on for removal and gated
+    // them behind these markers. They are still the only way to do what this plugin does, so opt
+    // in rather than chase the replacements before they are settled.
+    optIn.add("org.jetbrains.kotlin.DeprecatedForRemovalCompilerApi")
+    optIn.add("org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess")
   }
 }
 
