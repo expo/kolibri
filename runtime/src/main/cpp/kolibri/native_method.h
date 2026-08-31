@@ -252,5 +252,5 @@ namespace expo::kolibri {
     return registerNative<Derived>(env);
   }
 
-  typedef long NativePointer;
+  typedef jlong NativePointer;
 } // namespace expo::kolibri
