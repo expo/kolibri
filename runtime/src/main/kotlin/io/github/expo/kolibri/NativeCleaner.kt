@@ -1,30 +1,13 @@
 package io.github.expo.kolibri
 
 import java.lang.ref.PhantomReference
-import java.lang.ref.Reference
 import java.lang.ref.ReferenceQueue
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Shared cleaner for native-backed handles ([NativeObject] subclasses).
  */
 object NativeCleaner {
   val cleaner: Cleaner = Cleaner.create()
-}
-
-/**
- * A [Runnable] that frees the native object at [pointer].
- */
-class NativeDeallocator(
-  private var pointer: Long,
-  private val free: (Long) -> Unit,
-) : Runnable {
-  override fun run() = synchronized(this) {
-    free(pointer)
-    pointer = 0
-  }
 }
 
 /**
@@ -51,35 +34,88 @@ interface Cleanable {
 class Cleaner private constructor() {
   private val queue = ReferenceQueue<Any>()
 
-  private val registrations: MutableSet<CleanableImpl> =
-    Collections.newSetFromMap(ConcurrentHashMap())
+  private val lock = Any()
+
+  private var head: Node? = null
+
+  /** Frees the native memory a [registerPointer] registration stands for. Implement it as a singleton. */
+  fun interface PointerFree {
+    fun free(pointer: Long)
+  }
 
   /**
    * Registers [obj] so that [action] runs once [obj] becomes phantom-reachable (or once the returned
    * [Cleanable] is cleaned, whichever comes first). [action] MUST NOT reference [obj], directly or by
    * capture - doing so keeps [obj] reachable forever and the action would never run.
    */
-  fun register(obj: Any, action: Runnable): Cleanable {
-    val cleanable = CleanableImpl(obj, action)
-    registrations.add(cleanable)
-    return cleanable
+  fun register(obj: Any, action: Runnable): Cleanable =
+    link(ActionNode(obj, action))
+
+  /**
+   * Registers [obj] so that [free] runs with [pointer] once [obj] becomes phantom-reachable (or once
+   * the returned [Cleanable] is cleaned). Unlike [register] it allocates nothing beyond the reference
+   * itself, provided [free] is a shared instance rather than a capturing lambda.
+   */
+  fun registerPointer(obj: Any, pointer: Long, free: PointerFree): Cleanable =
+    link(PointerNode(obj, pointer, free))
+
+  private fun <N : Node> link(node: N): N {
+    synchronized(lock) {
+      node.next = head
+      head?.prev = node
+      head = node
+      node.linked = true
+    }
+    return node
   }
 
-  private inner class CleanableImpl(
-    referent: Any,
-    private val action: Runnable,
-  ) : PhantomReference<Any>(referent, queue), Cleanable {
-    // Guards the action so it runs exactly once even when an explicit clean() races the GC draining
-    // this same reference off the queue.
-    private val cleaned = AtomicBoolean(false)
+  private abstract inner class Node(referent: Any) : PhantomReference<Any>(referent, queue), Cleanable {
+    @JvmField
+    var prev: Node? = null
 
-    override fun clean() {
-      if (cleaned.compareAndSet(false, true)) {
-        registrations.remove(this)
-        // Drop the reference so the GC won't enqueue it after we've already run the action.
-        clear()
-        action.run()
+    @Suppress("PROPERTY_HIDES_JAVA_FIELD")
+    @JvmField
+    var next: Node? = null
+
+    /** True while the node is on the list, which is exactly while its action has not run. */
+    @JvmField
+    var linked = false
+
+    final override fun clean() {
+      synchronized(lock) {
+        if (!linked) {
+          return
+        }
+        linked = false
+        prev?.next = next
+        next?.prev = prev
+        if (head === this) {
+          head = next
+        }
+        prev = null
+        next = null
       }
+      // Drop the reference so the GC won't enqueue it after we've already run the action.
+      clear()
+      perform()
+    }
+
+    protected abstract fun perform()
+  }
+
+  private inner class ActionNode(referent: Any, private val action: Runnable) : Node(referent) {
+    override fun perform() = action.run()
+  }
+
+  private inner class PointerNode(
+    referent: Any,
+    private var pointer: Long,
+    private val free: PointerFree,
+  ) : Node(referent) {
+    override fun perform() {
+      val p = pointer
+      pointer = 0
+      free.free(p)
     }
   }
 
@@ -91,14 +127,13 @@ class Cleaner private constructor() {
     val thread = Thread({
       while (true) {
         try {
-          // Blocks until a registration is enqueued; the cast is safe because CleanableImpl is the
-          // only thing we ever put on this queue.
-          val ref = queue.remove() as Reference<*>
-          (ref as Cleanable).clean()
+          // Blocks until a registration is enqueued; the cast is safe because Node is the only thing
+          // we ever put on this queue.
+          (queue.remove() as Cleanable).clean()
         } catch (_: InterruptedException) {
           // Nothing to hand off to; just keep draining.
         } catch (_: Throwable) {
-          // A cleaning action threw. Swallow it — one bad free must not tear down the thread and
+          // A cleaning action threw. Swallow it - one bad free must not tear down the thread and
           // leak every other handle's native memory.
         }
       }

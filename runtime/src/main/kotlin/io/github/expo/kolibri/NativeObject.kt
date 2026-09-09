@@ -15,6 +15,7 @@ value class NativePointer(val value: Long)
 fun nativePointerOf(obj: NativeObject?): Long = obj?.nativePointer ?: 0L
 
 private val hasJvmReachabilityFence: Boolean = try {
+  @Suppress("CheckResult")
   java.lang.ref.Reference::class.java.getDeclaredMethod("reachabilityFence", Any::class.java)
   true
 } catch (_: Throwable) {
@@ -57,11 +58,10 @@ abstract class NativeObject(pointer: NativePointer) {
 
   private val cleanable: Cleanable = NativeCleaner
     .cleaner
-    .register(
-      this,
-      NativeDeallocator(
-        nativePointer,
-      ) { nativeDestroy(it) },
+    .registerPointer(
+      obj = this,
+      pointer = nativePointer,
+      free = destroyer
     )
 
   /**
@@ -80,5 +80,10 @@ abstract class NativeObject(pointer: NativePointer) {
 
     @JvmStatic
     private external fun nativeDestroy(pointer: Long)
+
+    /**
+     * Hoisted so every handle shares one instance.
+     */
+    private val destroyer = Cleaner.PointerFree(::nativeDestroy)
   }
 }
