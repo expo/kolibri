@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <concepts>
+#include <functional>
 #include <jni.h>
 #include <span>
 #include <stdexcept>
@@ -17,6 +20,8 @@
 
 namespace expo::kolibri {
   namespace detail {
+    inline constexpr std::size_t kArrayChunkSize = 256;
+
     template<typename T>
     struct jni_array_traits;
 
@@ -96,6 +101,68 @@ namespace expo::kolibri {
 
     template<typename T>
     concept jni_primitive_array_element = requires { typename jni_array_traits<T>::array_type; };
+
+    /** `visitor(jsize start, std::span<const Element> chunk)`: sees one chunk at a time. */
+    template<typename F, typename Element>
+    concept array_chunk_visitor = std::invocable<F, jsize, std::span<const Element>>;
+
+    /** `visitor(jsize index, Element value)`: sees one element at a time. */
+    template<typename F, typename Element>
+    concept array_element_visitor = std::invocable<F, jsize, Element>;
+
+    /** `producer(jsize start, std::span<Element> chunk)`: fills one chunk at a time. */
+    template<typename F, typename Element>
+    concept array_chunk_producer = std::invocable<F, jsize, std::span<Element>>;
+
+    /** `producer(jsize index) -> Element`: yields one element at a time. */
+    template<typename F, typename Element>
+    concept array_element_producer = requires(F& producer, jsize index)
+    {
+      { std::invoke(producer, index) } -> std::convertible_to<Element>;
+    };
+
+    template<typename F, typename Element>
+    concept array_producer = array_chunk_producer<F, Element> || array_element_producer<F, Element>;
+
+    template<typename Element, std::size_t ChunkSize, array_chunk_visitor<Element> Visitor>
+    void visitArrayChunked(
+      JNIEnv* env,
+      typename jni_array_traits<Element>::array_type array,
+      Visitor&& visitor
+    ) {
+      static_assert(ChunkSize > 0, "The chunk size must be at least one element");
+      using Traits = jni_array_traits<Element>;
+      const jsize size = env->GetArrayLength(array);
+      Element buffer[ChunkSize];
+      for (jsize start = 0; start < size; start += static_cast<jsize>(ChunkSize)) {
+        const jsize count = std::min(static_cast<jsize>(ChunkSize), size - start);
+        (env->*Traits::getRegion)(array, start, count, buffer);
+        std::invoke(visitor, start, std::span<const Element>(buffer, static_cast<std::size_t>(count)));
+      }
+    }
+
+    template<typename Element, std::size_t ChunkSize, array_producer<Element> Producer>
+    void fillArrayChunked(
+      JNIEnv* env,
+      typename jni_array_traits<Element>::array_type array,
+      jsize size,
+      Producer&& producer
+    ) {
+      static_assert(ChunkSize > 0, "The chunk size must be at least one element");
+      using Traits = jni_array_traits<Element>;
+      Element buffer[ChunkSize];
+      for (jsize start = 0; start < size; start += static_cast<jsize>(ChunkSize)) {
+        const jsize count = std::min(static_cast<jsize>(ChunkSize), size - start);
+        if constexpr (array_chunk_producer<Producer, Element>) {
+          std::invoke(producer, start, std::span<Element>(buffer, static_cast<std::size_t>(count)));
+        } else {
+          for (jsize i = 0; i < count; i++) {
+            buffer[i] = static_cast<Element>(std::invoke(producer, start + i));
+          }
+        }
+        (env->*Traits::setRegion)(array, start, count, buffer);
+      }
+    }
 
     template<typename T>
     concept jni_object_array_element = has_descriptor<T> || std::is_same_v<T, jstring>;
@@ -267,6 +334,25 @@ namespace expo::kolibri {
       return array;
     }
 
+    template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_producer<Element> Producer>
+    static JniType createRaw(JNIEnv* env, jsize size, Producer&& producer) {
+      JniType array = (env->*Traits::newArray)(size);
+      if (array == nullptr) {
+        throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+      }
+      detail::fillArrayChunked<Element, ChunkSize>(
+        env, array, size, std::forward<Producer>(producer)
+      );
+      return array;
+    }
+
+    template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_producer<Element> Producer>
+    static Ref<JArray> create(JNIEnv* env, jsize size, Producer&& producer) {
+      return Ref<JArray>::adopt(
+        env, createRaw<ChunkSize>(env, size, std::forward<Producer>(producer))
+      );
+    }
+
     struct Accessors : JavaClass<JArray>::BaseAccessors {
       [[nodiscard]] jsize size(JNIEnv* env) const {
         return env->GetArrayLength(handle());
@@ -290,6 +376,32 @@ namespace expo::kolibri {
           getRegion(env, 0, std::span<Element>(out));
         }
         return out;
+      }
+
+      template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_chunk_visitor<Element> Visitor>
+      void forEachChunk(JNIEnv* env, Visitor&& visitor) const {
+        detail::visitArrayChunked<Element, ChunkSize>(env, handle(), std::forward<Visitor>(visitor));
+      }
+
+      template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_element_visitor<Element> Visitor>
+      void forEach(JNIEnv* env, Visitor&& visitor) const {
+        detail::visitArrayChunked<Element, ChunkSize>(
+          env,
+          handle(),
+          [&visitor](jsize start, std::span<const Element> chunk) {
+            for (std::size_t i = 0; i < chunk.size(); i++) {
+              std::invoke(visitor, start + static_cast<jsize>(i), chunk[i]);
+            }
+          }
+        );
+      }
+
+      template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_producer<Element> Producer>
+      void fill(JNIEnv* env, Producer&& producer) const {
+        const JniType array = handle();
+        detail::fillArrayChunked<Element, ChunkSize>(
+          env, array, env->GetArrayLength(array), std::forward<Producer>(producer)
+        );
       }
 
       [[nodiscard]] PinnedArray<Element> pin(JNIEnv* env) const {

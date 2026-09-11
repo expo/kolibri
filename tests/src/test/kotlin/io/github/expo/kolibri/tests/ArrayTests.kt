@@ -22,6 +22,13 @@ class ArrayTests : NativeTestBase() {
 
   private external fun nativeRegionRoundTrip(values: IntArray): Boolean
   private external fun nativePinMutate(values: IntArray): Boolean
+  private external fun nativeChunkedRead(values: IntArray): Boolean
+  private external fun nativeChunkedSumDoubles(values: DoubleArray): Double
+  private external fun nativeFillByChunk(values: IntArray): Boolean
+  private external fun nativeFillByIndex(values: LongArray): Boolean
+  private external fun nativeCreateByChunk(size: Int): DoubleArray
+  private external fun nativeCreateRawByIndex(size: Int): ShortArray
+  private external fun nativeCreateBooleansByIndex(size: Int): BooleanArray
   private external fun nativeZeroLengthArrays(): Boolean
   private external fun nativeMakeStringArray(): Array<String?>
   private external fun nativeJoinStringArray(values: Array<String?>): String
@@ -58,6 +65,39 @@ class ArrayTests : NativeTestBase() {
     val values = IntArray(5) { it }
     assertTrue(nativePinMutate(values))
     assertContentEquals(intArrayOf(100, 101, 102, 103, 104), values)
+  }
+
+  @Test
+  fun `forEachChunk and forEach stream the array in order with a tail chunk`() {
+    assertTrue(nativeChunkedRead(IntArray(10) { it }))
+  }
+
+  @Test
+  fun `forEachChunk covers arrays longer than the default chunk size`() {
+    val values = DoubleArray(1000) { it.toDouble() }
+    assertEquals(values.sum(), nativeChunkedSumDoubles(values))
+    // Exactly one chunk, and exactly two chunks with no tail.
+    assertEquals(DoubleArray(256) { 1.0 }.sum(), nativeChunkedSumDoubles(DoubleArray(256) { 1.0 }))
+    assertEquals(512.0, nativeChunkedSumDoubles(DoubleArray(512) { 1.0 }))
+  }
+
+  @Test
+  fun `fill writes every element through chunk and index producers`() {
+    val byChunk = IntArray(10) { -1 }
+    assertTrue(nativeFillByChunk(byChunk))
+    assertContentEquals(IntArray(10) { it * 10 }, byChunk)
+
+    val byIndex = LongArray(6) { -1L }
+    assertTrue(nativeFillByIndex(byIndex))
+    assertContentEquals(longArrayOf(0, 1, 4, 9, 16, 25), byIndex)
+  }
+
+  @Test
+  fun `create with a producer streams the new array in chunks`() {
+    assertContentEquals(DoubleArray(9) { it + 0.5 }, nativeCreateByChunk(9))
+    assertContentEquals(ShortArray(300) { (-it).toShort() }, nativeCreateRawByIndex(300))
+    assertContentEquals(BooleanArray(7) { it % 3 == 0 }, nativeCreateBooleansByIndex(7))
+    assertContentEquals(doubleArrayOf(), nativeCreateByChunk(0))
   }
 
   @Test

@@ -11,6 +11,7 @@
 
 #include "expect.h"
 #include "test_helpers.h"
+#include "../../../../runtime/src/main/cpp/kolibri/array.h"
 
 namespace expo::kolibri::tests {
   namespace {
@@ -108,10 +109,108 @@ namespace expo::kolibri::tests {
       return JNI_TRUE;
     }
 
+    // `values` is 0..9: a 4-element chunk size gives two full chunks and a 2-element tail.
+    jboolean chunkedRead(JNIEnv* env, jintArray values) {
+      const UnownedRef<JIntArray> array{values};
+      KOLIBRI_EXPECT_EQ(array->size(env), 10);
+
+      std::vector<jsize> starts;
+      std::vector<std::size_t> sizes;
+      jlong sum = 0;
+      array->forEachChunk<4>(env, [&](jsize start, std::span<const jint> chunk) {
+        starts.push_back(start);
+        sizes.push_back(chunk.size());
+        for (const jint value: chunk) {
+          sum += value;
+        }
+      });
+      KOLIBRI_EXPECT_EQ(starts.size(), std::size_t{3});
+      KOLIBRI_EXPECT_EQ(starts[0], 0);
+      KOLIBRI_EXPECT_EQ(starts[1], 4);
+      KOLIBRI_EXPECT_EQ(starts[2], 8);
+      KOLIBRI_EXPECT_EQ(sizes[0], std::size_t{4});
+      KOLIBRI_EXPECT_EQ(sizes[1], std::size_t{4});
+      KOLIBRI_EXPECT_EQ(sizes[2], std::size_t{2});
+      KOLIBRI_EXPECT_EQ(sum, jlong{45});
+
+      jsize expectedIndex = 0;
+      array->forEach<4>(env, [&](jsize index, jint value) {
+        KOLIBRI_EXPECT_EQ(index, expectedIndex);
+        KOLIBRI_EXPECT_EQ(value, index);
+        expectedIndex++;
+      });
+      KOLIBRI_EXPECT_EQ(expectedIndex, 10);
+      return JNI_TRUE;
+    }
+
+    // Default chunk size: the Kotlin side passes more than kArrayChunkSize elements.
+    jdouble chunkedSumDoubles(JNIEnv* env, jdoubleArray values) {
+      const UnownedRef<JDoubleArray> array{values};
+      jdouble sum = 0;
+      jsize chunks = 0;
+      array->forEachChunk(env, [&](jsize, std::span<const jdouble> chunk) {
+        KOLIBRI_EXPECT(chunk.size() <= detail::kArrayChunkSize);
+        chunks++;
+        for (const jdouble value: chunk) {
+          sum += value;
+        }
+      });
+      const jsize size = array->size(env);
+      KOLIBRI_EXPECT_EQ(chunks, static_cast<jsize>((size + detail::kArrayChunkSize - 1) / detail::kArrayChunkSize));
+      return sum;
+    }
+
+    jboolean fillByChunk(JNIEnv* env, jintArray values) {
+      const UnownedRef<JIntArray> array{values};
+      array->fill<4>(env, [](jsize start, std::span<jint> chunk) {
+        for (std::size_t i = 0; i < chunk.size(); i++) {
+          chunk[i] = (start + static_cast<jsize>(i)) * 10;
+        }
+      });
+      return JNI_TRUE;
+    }
+
+    jboolean fillByIndex(JNIEnv* env, jlongArray values) {
+      const UnownedRef<JLongArray> array{values};
+      // Six elements over a 3-element chunk: two full chunks, no tail.
+      array->fill<3>(env, [](jsize index) { return jlong{index} * index; });
+      return JNI_TRUE;
+    }
+
+    Ref<JDoubleArray> createByChunk(JNIEnv* env, jint size) {
+      return JDoubleArray::create<4>(env, size, [](jsize start, std::span<jdouble> chunk) {
+        for (std::size_t i = 0; i < chunk.size(); i++) {
+          chunk[i] = static_cast<jdouble>(start) + static_cast<jdouble>(i) + 0.5;
+        }
+      });
+    }
+
+    jshortArray createRawByIndex(JNIEnv* env, jint size) {
+      return JShortArray::createRaw(env, size, [](jsize index) {
+        return static_cast<jshort>(-index);
+      });
+    }
+
+    Ref<JBooleanArray> createBooleansByIndex(JNIEnv* env, jint size) {
+      // A `bool` result converts to jboolean.
+      return JBooleanArray::create(env, size, [](jsize index) { return index % 3 == 0; });
+    }
+
     jboolean zeroLengthArrays(JNIEnv* env) {
       const auto empty = JIntArray::create(env, 0);
       KOLIBRI_EXPECT_EQ(empty->size(env), 0);
       KOLIBRI_EXPECT(empty->toVector(env).empty());
+      empty->forEachChunk(env, [](jsize, std::span<const jint>) {
+        KOLIBRI_EXPECT(false);
+      });
+      empty->fill(env, [](jsize) -> jint {
+        KOLIBRI_EXPECT(false);
+        return 0;
+      });
+      const auto emptyProduced = JIntArray::create(env, 0, [](jsize, std::span<jint>) {
+        KOLIBRI_EXPECT(false);
+      });
+      KOLIBRI_EXPECT_EQ(emptyProduced->size(env), 0);
       {
         const auto pinned = empty->pinReadOnly(env);
         KOLIBRI_EXPECT_EQ(pinned.size(), 0);
@@ -172,6 +271,13 @@ namespace expo::kolibri::tests {
       .method<&countTrue>("nativeCountTrue")
       .method<&regionRoundTrip>("nativeRegionRoundTrip")
       .method<&pinMutate>("nativePinMutate")
+      .method<&chunkedRead>("nativeChunkedRead")
+      .method<&chunkedSumDoubles>("nativeChunkedSumDoubles")
+      .method<&fillByChunk>("nativeFillByChunk")
+      .method<&fillByIndex>("nativeFillByIndex")
+      .method<&createByChunk>("nativeCreateByChunk")
+      .method<&createRawByIndex>("nativeCreateRawByIndex")
+      .method<&createBooleansByIndex>("nativeCreateBooleansByIndex")
       .method<&zeroLengthArrays>("nativeZeroLengthArrays")
       .method<&makeStringArray>("nativeMakeStringArray")
       .method<
