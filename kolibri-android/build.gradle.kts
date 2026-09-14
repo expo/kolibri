@@ -1,4 +1,6 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
 
 plugins {
   alias(libs.plugins.android.library)
@@ -6,9 +8,11 @@ plugins {
 }
 
 mavenPublishing {
-  // Maven Central rejects a deployment that has no `-javadoc.jar` next to the main artifact, so
-  // `publishJavadocJar` has to stay on — AGP generates the jar from this variant's sources.
-  configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
+  configure(AndroidSingleVariantLibrary(
+    javadocJar = JavadocJar.Empty(),
+    sourcesJar = SourcesJar.Sources(),
+    variant = "release"
+  ))
 }
 
 // Prefab exports a whole directory as an include root. Kolibri's include root is the cpp/ dir

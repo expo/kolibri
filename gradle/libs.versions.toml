@@ -11,10 +11,10 @@ junit = "4.13.2"
 buildconfig = "5.5.1"
 
 # https://developer.android.com/build/releases/gradle-plugin
-agp = "8.10.1"
+agp = "9.2.1"
 
 # https://github.com/vanniktech/gradle-maven-publish-plugin
-vanniktech-mavenPublish = "0.30.0"
+vanniktech-mavenPublish = "0.37.0"
 
 [libraries]
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }

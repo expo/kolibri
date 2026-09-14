@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
@@ -12,7 +13,7 @@ mavenPublishing {
   // Maven Central rejects a deployment that has no `-javadoc.jar` next to the main artifact, so the
   // jar has to be published even though Kolibri renders no API docs. `JavadocJar.Empty()` ships an
   // empty one, which satisfies the validator; switch to `JavadocJar.Dokka(..)` if real docs land.
-  configure(GradlePlugin(JavadocJar.Empty(), sourcesJar = true))
+  configure(GradlePlugin(JavadocJar.Empty(), SourcesJar.Sources()))
 }
 
 sourceSets {

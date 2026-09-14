@@ -36,7 +36,7 @@ class KolibriGradlePlugin : KotlinCompilerPluginSupportPlugin {
     for (androidPluginId in listOf("com.android.application", "com.android.library")) {
       target.pluginManager.withPlugin(androidPluginId) {
         target.dependencies.add("implementation", ANDROID_LIBRARY_COORDINATES)
-        val android = target.extensions.getByName("android") as CommonExtension<*, *, *, *, *, *>
+        val android = target.extensions.getByName("android") as CommonExtension
         android.buildFeatures.prefab = true
       }
     }

@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
+import com.vanniktech.maven.publish.SourcesJar
 import org.gradle.api.component.AdhocComponentWithVariants
 
 plugins {
@@ -14,7 +15,7 @@ mavenPublishing {
   // Maven Central rejects a deployment that has no `-javadoc.jar` next to the main artifact, so the
   // jar has to be published even though Kolibri renders no API docs. `JavadocJar.Empty()` ships an
   // empty one, which satisfies the validator; switch to `JavadocJar.Dokka(..)` if real docs land.
-  configure(KotlinJvm(JavadocJar.Empty(), sourcesJar = true))
+  configure(KotlinJvm(JavadocJar.Empty(), SourcesJar.Sources()))
 }
 
 // `java-test-fixtures` wires its variants into the `java` component, so the test-fixtures jar and
@@ -59,7 +60,6 @@ dependencies {
   testFixturesRuntimeOnly(libs.junit)
 
   // Dependencies required to run the internal test framework.
-  testArtifacts(libs.kotlin.stdlib)
   testArtifacts(libs.kotlin.stdlib.jdk8)
   testArtifacts(libs.kotlin.reflect)
   testArtifacts(libs.kotlin.test)
