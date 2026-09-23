@@ -13,8 +13,13 @@ env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
 jobs:
-  test:
-    name: Test
+  # The Kotlin-independent half of `check`: the standalone CMake build of the C++ static library
+  # (:runtime:buildNative), which proves the layer compiles against ONLY <jni.h>, and the Android
+  # AAR's NDK build, Prefab packaging and lint (:kolibri-android:check). Everything else in `check`
+  # depends on the Kotlin release and runs in the `test-kotlin` matrix below - including on the
+  # catalog's default, so nothing is built twice. CMake and Ninja are preinstalled on the runner.
+  native:
+    name: Native and Android
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -29,24 +34,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # `check` runs the Kotlin + JNI tests (:tests:test), the compiler plugin's box and
-      # diagnostic tests (:compiler-plugin:test), and the standalone CMake build of the C++
-      # static library (:runtime:buildNative). CMake and Ninja are preinstalled on the runner.
-      # It runs against the catalog's Kotlin — the oldest supported release, which is also the
-      # one the universal artifacts (runtime, kolibri-android, gradle-plugin) are published with.
-      - name: Run checks
-        run: ./gradlew check --stacktrace
+      - name: Build the C++ library and check the Android AAR
+        run: ./gradlew :runtime:buildNative :kolibri-android:check --stacktrace
 
-      # always(), not failure(): the reports are the only record of how many tests actually ran.
-      # A task that is silently skipped still reports a green build, so keep the evidence.
-      - name: Upload test reports
+      - name: Upload lint reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: |
-            **/build/reports/tests/
-            **/build/test-results/
+          name: lint-reports
+          path: kolibri-android/build/reports/
           retention-days: 7
 
   # The compiler plugin links against compiler internals, so every Kotlin release it is published
@@ -86,12 +82,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Only the Kotlin-dependent half of `check`: the compiler plugin's own tests, the Gradle
-      # plugin compiled against that release's KGP, and the runtime + JNI tests compiled with that
-      # release's compiler. The C++ builds and the Android AAR do not depend on Kotlin and are
-      # covered once by the `test` job above.
+      # The Kotlin-dependent half of `check`: the compiler plugin's own tests, the Gradle plugin
+      # compiled against that release's KGP, and the runtime and JNI tests compiled with that
+      # release's compiler. The C++ static library and the Android AAR do not depend on Kotlin and
+      # are covered once by the `native` job above.
+      # always(), not failure(), on the upload: the reports are the only record of how many tests
+      # actually ran. A task that is silently skipped still reports a green build, so keep the evidence.
       - name: Run checks against Kotlin ${{ matrix.kotlin-version }}
-        run: ./gradlew :compiler-plugin:test :gradle-plugin:build :tests:test -PkotlinVersion=${{ matrix.kotlin-version }} --stacktrace
+        run: ./gradlew :compiler-plugin:test :gradle-plugin:build :runtime:test :tests:test -PkotlinVersion=${{ matrix.kotlin-version }} --stacktrace
 
       - name: Upload test reports
         if: always()
