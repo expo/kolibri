@@ -2,6 +2,8 @@
 kolibri = "0.1.9"
 
 # https://github.com/JetBrains/kotlin
+# The oldest supported release. Every release in gradle/kotlin-versions.txt is built and tested;
+# `-PkotlinVersion=<version>` overrides this one for the whole build (see settings.gradle.kts).
 kotlin = "2.2.0"
 
 # https://github.com/junit-team/junit4

@@ -9,13 +9,14 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /**
  * Gradle plugin that integrates Kolibri into a consumer project. Applying it:
  *
  *  - registers the Kolibri Kotlin compiler plugin (the @NativeMethod/@AsNativePointer transform)
- *    with every Kotlin compilation,
+ *    with every Kotlin compilation, picking the build of it that matches the project's Kotlin,
  *  - adds the Kolibri runtime ([RUNTIME_LIBRARY_COORDINATES]) to the implementation configuration
  *    so generated code has its supporting types available,
  *  - on Android projects, adds the prebuilt native AAR ([ANDROID_LIBRARY_COORDINATES]) and enables
@@ -25,7 +26,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  */
 @Suppress("unused") // Used via reflection.
 class KolibriGradlePlugin : KotlinCompilerPluginSupportPlugin {
+  private lateinit var project: Project
+
   override fun apply(target: Project) {
+    project = target
     target.extensions.create("kolibri", KolibriGradleExtension::class.java)
 
     // On the desktop JVM the C++ layer arrives statically linked inside the host's own shared
@@ -46,10 +50,14 @@ class KolibriGradlePlugin : KotlinCompilerPluginSupportPlugin {
 
   override fun getCompilerPluginId(): String = BuildConfig.KOTLIN_PLUGIN_ID
 
+  // A compiler plugin is bound to the exact compiler it was built against, so Kolibri publishes one
+  // compiler-plugin artifact per supported Kotlin release, versioned `<kolibri>-<kotlin>`. Resolving
+  // by the project's own Kotlin version keeps the consumer's `plugins {}` block Kotlin-agnostic; a
+  // Kotlin release Kolibri has no build for fails resolution with the missing coordinates.
   override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
     groupId = BuildConfig.KOTLIN_PLUGIN_GROUP,
     artifactId = BuildConfig.KOTLIN_PLUGIN_NAME,
-    version = BuildConfig.KOTLIN_PLUGIN_VERSION,
+    version = "${BuildConfig.KOLIBRI_VERSION}-${project.getKotlinPluginVersion()}",
   )
 
   override fun applyToCompilation(

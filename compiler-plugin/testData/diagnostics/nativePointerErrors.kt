@@ -34,3 +34,6 @@ class NoField {
 class WrongParam(pointer: Long) : NativeObject(pointer) {
     @NativeMethod external fun wrong(<!AS_NATIVE_POINTER_NOT_A_NATIVE_OBJECT!>@AsNativePointer value: String<!>): Boolean
 }
+
+/* GENERATED_FIR_TAGS: annotationDeclaration, classDeclaration, external, functionDeclaration, nullableType,
+primaryConstructor, propertyDeclaration */

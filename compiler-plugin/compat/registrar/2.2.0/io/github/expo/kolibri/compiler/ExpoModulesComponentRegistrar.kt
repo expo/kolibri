@@ -8,10 +8,11 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
 /**
- * Entry point of the Expo Modules API v2 Kotlin compiler plugin.
+ * Entry point of the Kolibri Kotlin compiler plugin (Kotlin 2.2.0 - 2.2.21: `pluginId` is not part
+ * of [CompilerPluginRegistrar] yet).
  *
  * It wires the FIR frontend extensions (declaration generation, checkers) and the IR backend
- * extensions (body generation) that implement the Expo Modules API v2 code generation.
+ * extension (body generation) that implement the @NativeMethod / @AsNativePointer transform.
  */
 class ExpoModulesComponentRegistrar : CompilerPluginRegistrar() {
   override val supportsK2: Boolean

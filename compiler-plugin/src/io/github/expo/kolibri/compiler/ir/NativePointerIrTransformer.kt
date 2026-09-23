@@ -13,11 +13,13 @@ import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.isLong
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.isFakeOverride
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
@@ -87,26 +89,28 @@ class NativePointerIrTransformer(private val context: IrPluginContext) : IrVisit
       val thisParam = requireNotNull(original.dispatchReceiverParameter) {
         "@NativeMethod ${original.name} must be an instance method"
       }
+      val originalParams = original.regularParameters
+      // The stub's regular parameters are the pointer followed by the original's, in order.
+      val stubParams = stub.regularParameters
 
       // Handle args cross as raw pointers, so each one must be fenced after the call (see
       // [reachabilityFenceOf]); collect them up front to pick the body shape.
-      val fencedParams = original.valueParameters.filter { it.hasAnnotation(asNativePointerClassId) }
+      val fencedParams = originalParams.filter { it.hasAnnotation(asNativePointerClassId) }
 
       // The stub stays native; the original becomes a plain delegate that hands it the raw pointer.
       original.isExternal = false
       val builder = DeclarationIrBuilder(context, original.symbol)
       original.body = builder.irBlockBody {
         val delegateCall = irCall(stub.symbol).apply {
-          dispatchReceiver = irGet(thisParam)
-          putValueArgument(0, irGetField(irGet(thisParam), field))
-          original.valueParameters.forEachIndexed { index, param ->
+          arguments[requireNotNull(stub.dispatchReceiverParameter)] = irGet(thisParam)
+          arguments[stubParams[0]] = irGetField(irGet(thisParam), field)
+          originalParams.forEachIndexed { index, param ->
             // An @AsNativePointer handle is passed as its Long pointer; other args pass through.
-            val arg = if (param.hasAnnotation(asNativePointerClassId)) {
-              irCall(nativePointerOf).apply { putValueArgument(0, irGet(param)) }
+            arguments[stubParams[index + 1]] = if (param.hasAnnotation(asNativePointerClassId)) {
+              irCall(nativePointerOf).apply { arguments[0] = irGet(param) }
             } else {
               irGet(param)
             }
-            putValueArgument(index + 1, arg)
           }
         }
         if (fencedParams.isEmpty()) {
@@ -114,7 +118,7 @@ class NativePointerIrTransformer(private val context: IrPluginContext) : IrVisit
         } else {
           val result = irTemporary(delegateCall)
           for (param in fencedParams) {
-            +irCall(reachabilityFenceOf).apply { putValueArgument(0, irGet(param)) }
+            +irCall(reachabilityFenceOf).apply { arguments[0] = irGet(param) }
           }
           +irReturn(irGet(result))
         }
@@ -131,12 +135,25 @@ class NativePointerIrTransformer(private val context: IrPluginContext) : IrVisit
    * parameter-list check disambiguates between the stubs of same-name annotated overloads.
    */
   private fun IrSimpleFunction.isStubFor(original: IrSimpleFunction): Boolean {
-    if ((origin as? IrDeclarationOrigin.GeneratedByPlugin)?.pluginKey != NativePointerStubGenerator.Key) return false
-    if (name != original.name) return false
-    if (valueParameters.size != original.valueParameters.size + 1) return false
-    if (!valueParameters[0].type.isLong()) return false
-    return original.valueParameters.withIndex().all { (index, param) ->
-      val stubParam = valueParameters[index + 1]
+    if ((origin as? IrDeclarationOrigin.GeneratedByPlugin)?.pluginKey != NativePointerStubGenerator.Key) {
+      return false
+    }
+    if (name != original.name) {
+      return false
+    }
+    
+    val stubParams = regularParameters
+    val originalParams = original.regularParameters
+
+    if (stubParams.size != originalParams.size + 1) {
+      return false
+    }
+    if (!stubParams[0].type.isLong()) {
+      return false
+    }
+
+    return originalParams.withIndex().all { (index, param) ->
+      val stubParam = stubParams[index + 1]
       if (param.hasAnnotation(asNativePointerClassId)) {
         stubParam.type.isLong()
       } else {
@@ -144,6 +161,10 @@ class NativePointerIrTransformer(private val context: IrPluginContext) : IrVisit
       }
     }
   }
+
+  /** The declared (non-receiver, non-context) parameters, in declaration order. */
+  private val IrFunction.regularParameters: List<IrValueParameter>
+    get() = parameters.filter { it.kind == IrParameterKind.Regular }
 
   /** Finds the `nativePointer` backing field on this class or any of its superclasses. */
   private fun IrClass.findPointerField(): IrField? {

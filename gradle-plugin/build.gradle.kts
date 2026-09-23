@@ -46,7 +46,9 @@ buildConfig {
   val pluginProject = project(":compiler-plugin")
   buildConfigField("String", "KOTLIN_PLUGIN_GROUP", "\"${pluginProject.group}\"")
   buildConfigField("String", "KOTLIN_PLUGIN_NAME", "\"compiler-plugin\"")
-  buildConfigField("String", "KOTLIN_PLUGIN_VERSION", "\"${pluginProject.version}\"")
+  // The compiler plugin is published once per Kotlin release as `<kolibri>-<kotlin>`; the Gradle
+  // plugin appends the consumer's Kotlin at configuration time, so only the Kolibri half is baked in.
+  buildConfigField("String", "KOLIBRI_VERSION", "\"${libs.versions.kolibri.get()}\"")
 
   val runtimeProject = project(":runtime")
   buildConfigField(

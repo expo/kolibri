@@ -14,3 +14,6 @@ fun test(handle: Handle) {
     val b = handle.isNumber()
     b.<!UNRESOLVED_REFERENCE!>inc<!>() // isNumber() returns a Boolean, so inc() must not resolve
 }
+
+/* GENERATED_FIR_TAGS: annotationDeclaration, classDeclaration, external, functionDeclaration, localProperty,
+primaryConstructor, propertyDeclaration */

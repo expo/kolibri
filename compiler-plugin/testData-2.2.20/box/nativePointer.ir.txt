@@ -1,0 +1,314 @@
+FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
+  CLASS ANNOTATION_CLASS name:NativeMethod modality:OPEN visibility:public superTypes:[kotlin.Annotation]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:io.github.expo.kolibri.NativeMethod
+    CONSTRUCTOR visibility:public returnType:io.github.expo.kolibri.NativeMethod [primary]
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS ANNOTATION_CLASS name:NativeMethod modality:OPEN visibility:public superTypes:[kotlin.Annotation]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Annotation
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Annotation
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Annotation
+  CLASS CLASS name:Handle modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:io.github.expo.kolibri.Handle
+    CONSTRUCTOR visibility:public returnType:io.github.expo.kolibri.Handle [primary]
+      VALUE_PARAMETER kind:Regular name:pointer index:0 type:kotlin.Long
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> (nativePointer: kotlin.Long) declared in io.github.expo.kolibri.NativeBase'
+          ARG nativePointer: GET_VAR 'pointer: kotlin.Long declared in io.github.expo.kolibri.Handle.<init>' type=kotlin.Long origin=null
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Handle modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in io.github.expo.kolibri.NativeBase
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in io.github.expo.kolibri.NativeBase
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in io.github.expo.kolibri.NativeBase
+    FUN GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] name:add visibility:private modality:FINAL returnType:kotlin.Int [external]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Handle
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:pointer index:1 type:kotlin.Long
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:x index:2 type:kotlin.Int
+    FUN GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] name:isNumber visibility:private modality:FINAL returnType:kotlin.Boolean [external]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Handle
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:pointer index:1 type:kotlin.Long
+    FUN name:add visibility:public modality:FINAL returnType:kotlin.Int
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Handle
+      VALUE_PARAMETER kind:Regular name:x index:1 type:kotlin.Int
+      annotations:
+        NativeMethod
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun add (x: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Handle'
+          CALL 'private final fun add (pointer: kotlin.Long, x: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Handle' type=kotlin.Int origin=null
+            ARG <this>: GET_VAR '<this>: io.github.expo.kolibri.Handle declared in io.github.expo.kolibri.Handle.add' type=io.github.expo.kolibri.Handle origin=null
+            ARG pointer: GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]' type=kotlin.Long origin=null
+              receiver: GET_VAR '<this>: io.github.expo.kolibri.Handle declared in io.github.expo.kolibri.Handle.add' type=io.github.expo.kolibri.Handle origin=null
+            ARG x: GET_VAR 'x: kotlin.Int declared in io.github.expo.kolibri.Handle.add' type=kotlin.Int origin=null
+    FUN name:isNumber visibility:public modality:FINAL returnType:kotlin.Boolean
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Handle
+      annotations:
+        NativeMethod
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun isNumber (): kotlin.Boolean declared in io.github.expo.kolibri.Handle'
+          CALL 'private final fun isNumber (pointer: kotlin.Long): kotlin.Boolean declared in io.github.expo.kolibri.Handle' type=kotlin.Boolean origin=null
+            ARG <this>: GET_VAR '<this>: io.github.expo.kolibri.Handle declared in io.github.expo.kolibri.Handle.isNumber' type=io.github.expo.kolibri.Handle origin=null
+            ARG pointer: GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]' type=kotlin.Long origin=null
+              receiver: GET_VAR '<this>: io.github.expo.kolibri.Handle declared in io.github.expo.kolibri.Handle.isNumber' type=io.github.expo.kolibri.Handle origin=null
+    PROPERTY FAKE_OVERRIDE name:nativePointer visibility:protected modality:FINAL [fake_override,val]
+      overridden:
+        protected final nativePointer: kotlin.Long declared in io.github.expo.kolibri.NativeBase
+      FUN FAKE_OVERRIDE name:<get-nativePointer> visibility:protected modality:FINAL returnType:kotlin.Long [fake_override]
+        VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.NativeBase
+        correspondingProperty: PROPERTY FAKE_OVERRIDE name:nativePointer visibility:protected modality:FINAL [fake_override,val]
+        overridden:
+          protected final fun <get-nativePointer> (): kotlin.Long declared in io.github.expo.kolibri.NativeBase
+  CLASS CLASS name:NativeBase modality:ABSTRACT visibility:public superTypes:[kotlin.Any]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:io.github.expo.kolibri.NativeBase
+    PROPERTY name:nativePointer visibility:protected modality:FINAL [val]
+      FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]
+        annotations:
+          JvmField
+        EXPRESSION_BODY
+          GET_VAR 'nativePointer: kotlin.Long declared in io.github.expo.kolibri.NativeBase.<init>' type=kotlin.Long origin=INITIALIZE_PROPERTY_FROM_PARAMETER
+      FUN DEFAULT_PROPERTY_ACCESSOR name:<get-nativePointer> visibility:protected modality:FINAL returnType:kotlin.Long
+        VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.NativeBase
+        correspondingProperty: PROPERTY name:nativePointer visibility:protected modality:FINAL [val]
+        BLOCK_BODY
+          RETURN type=kotlin.Nothing from='protected final fun <get-nativePointer> (): kotlin.Long declared in io.github.expo.kolibri.NativeBase'
+            GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]' type=kotlin.Long origin=null
+              receiver: GET_VAR '<this>: io.github.expo.kolibri.NativeBase declared in io.github.expo.kolibri.NativeBase.<get-nativePointer>' type=io.github.expo.kolibri.NativeBase origin=null
+    CONSTRUCTOR visibility:public returnType:io.github.expo.kolibri.NativeBase [primary]
+      VALUE_PARAMETER kind:Regular name:nativePointer index:0 type:kotlin.Long
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> () declared in kotlin.Any'
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:NativeBase modality:ABSTRACT visibility:public superTypes:[kotlin.Any]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in kotlin.Any
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in kotlin.Any
+  CLASS CLASS name:Overloaded modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]
+    thisReceiver: VALUE_PARAMETER INSTANCE_RECEIVER kind:DispatchReceiver name:<this> type:io.github.expo.kolibri.Overloaded
+    CONSTRUCTOR visibility:public returnType:io.github.expo.kolibri.Overloaded [primary]
+      VALUE_PARAMETER kind:Regular name:pointer index:0 type:kotlin.Long
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'public constructor <init> (nativePointer: kotlin.Long) declared in io.github.expo.kolibri.NativeBase'
+          ARG nativePointer: GET_VAR 'pointer: kotlin.Long declared in io.github.expo.kolibri.Overloaded.<init>' type=kotlin.Long origin=null
+        INSTANCE_INITIALIZER_CALL classDescriptor='CLASS CLASS name:Overloaded modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]' type=kotlin.Unit
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN returnType:kotlin.Boolean [fake_override,operator]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      VALUE_PARAMETER kind:Regular name:other index:1 type:kotlin.Any?
+      overridden:
+        public open fun equals (other: kotlin.Any?): kotlin.Boolean declared in io.github.expo.kolibri.NativeBase
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN returnType:kotlin.Int [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun hashCode (): kotlin.Int declared in io.github.expo.kolibri.NativeBase
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN returnType:kotlin.String [fake_override]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:kotlin.Any
+      overridden:
+        public open fun toString (): kotlin.String declared in io.github.expo.kolibri.NativeBase
+    FUN GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] name:foo visibility:private modality:FINAL returnType:kotlin.Int [external]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Overloaded
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:pointer index:1 type:kotlin.Long
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:a index:2 type:kotlin.Int
+    FUN GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] name:foo visibility:private modality:FINAL returnType:kotlin.Int [external]
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Overloaded
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:pointer index:1 type:kotlin.Long
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:a index:2 type:kotlin.Int
+      VALUE_PARAMETER GENERATED[io.github.expo.kolibri.compiler.fir.NativePointerStubGenerator.Key] kind:Regular name:b index:3 type:kotlin.Int
+    FUN name:foo visibility:public modality:FINAL returnType:kotlin.Int
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Overloaded
+      VALUE_PARAMETER kind:Regular name:a index:1 type:kotlin.Int
+      annotations:
+        NativeMethod
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun foo (a: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Overloaded'
+          CALL 'private final fun foo (pointer: kotlin.Long, a: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Overloaded' type=kotlin.Int origin=null
+            ARG <this>: GET_VAR '<this>: io.github.expo.kolibri.Overloaded declared in io.github.expo.kolibri.Overloaded.foo' type=io.github.expo.kolibri.Overloaded origin=null
+            ARG pointer: GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]' type=kotlin.Long origin=null
+              receiver: GET_VAR '<this>: io.github.expo.kolibri.Overloaded declared in io.github.expo.kolibri.Overloaded.foo' type=io.github.expo.kolibri.Overloaded origin=null
+            ARG a: GET_VAR 'a: kotlin.Int declared in io.github.expo.kolibri.Overloaded.foo' type=kotlin.Int origin=null
+    FUN name:foo visibility:public modality:FINAL returnType:kotlin.Int
+      VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.Overloaded
+      VALUE_PARAMETER kind:Regular name:a index:1 type:kotlin.Int
+      VALUE_PARAMETER kind:Regular name:b index:2 type:kotlin.Int
+      annotations:
+        NativeMethod
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='public final fun foo (a: kotlin.Int, b: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Overloaded'
+          CALL 'private final fun foo (pointer: kotlin.Long, a: kotlin.Int, b: kotlin.Int): kotlin.Int declared in io.github.expo.kolibri.Overloaded' type=kotlin.Int origin=null
+            ARG <this>: GET_VAR '<this>: io.github.expo.kolibri.Overloaded declared in io.github.expo.kolibri.Overloaded.foo' type=io.github.expo.kolibri.Overloaded origin=null
+            ARG pointer: GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:nativePointer type:kotlin.Long visibility:protected [final]' type=kotlin.Long origin=null
+              receiver: GET_VAR '<this>: io.github.expo.kolibri.Overloaded declared in io.github.expo.kolibri.Overloaded.foo' type=io.github.expo.kolibri.Overloaded origin=null
+            ARG a: GET_VAR 'a: kotlin.Int declared in io.github.expo.kolibri.Overloaded.foo' type=kotlin.Int origin=null
+            ARG b: GET_VAR 'b: kotlin.Int declared in io.github.expo.kolibri.Overloaded.foo' type=kotlin.Int origin=null
+    PROPERTY FAKE_OVERRIDE name:nativePointer visibility:protected modality:FINAL [fake_override,val]
+      overridden:
+        protected final nativePointer: kotlin.Long declared in io.github.expo.kolibri.NativeBase
+      FUN FAKE_OVERRIDE name:<get-nativePointer> visibility:protected modality:FINAL returnType:kotlin.Long [fake_override]
+        VALUE_PARAMETER kind:DispatchReceiver name:<this> index:0 type:io.github.expo.kolibri.NativeBase
+        correspondingProperty: PROPERTY FAKE_OVERRIDE name:nativePointer visibility:protected modality:FINAL [fake_override,val]
+        overridden:
+          protected final fun <get-nativePointer> (): kotlin.Long declared in io.github.expo.kolibri.NativeBase
+  FUN name:box visibility:public modality:FINAL returnType:kotlin.String
+    BLOCK_BODY
+      VAR name:cls type:java.lang.Class<io.github.expo.kolibri.Handle> [val]
+        CALL 'public final fun <get-java> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-java>>): java.lang.Class<T of kotlin.jvm.<get-java>> declared in kotlin.jvm' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=GET_PROPERTY
+          TYPE_ARG T: io.github.expo.kolibri.Handle
+          ARG <this>: CLASS_REFERENCE 'CLASS CLASS name:Handle modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]' type=kotlin.reflect.KClass<io.github.expo.kolibri.Handle>
+      VAR name:stub type:@[FlexibleNullability] java.lang.reflect.Method? [val]
+        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+          ARG p0: CONST String type=kotlin.String value="isNumber"
+          ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
+              TYPE_ARG T: kotlin.Long
+              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
+            ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+              ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+                ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                  GET_VAR 'val stub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+            CONST String type=kotlin.String value="Fail: isNumber(Long) is not native"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
+            ARG <this>: CALL 'public open fun isPrivate (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+              ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+                ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                  GET_VAR 'val stub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+            CONST String type=kotlin.String value="Fail: isNumber(Long) is not private"
+      VAR name:original type:@[FlexibleNullability] java.lang.reflect.Method? [val]
+        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+          ARG p0: CONST String type=kotlin.String value="isNumber"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+            ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+              ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                GET_VAR 'val original: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+            CONST String type=kotlin.String value="Fail: isNumber is still native"
+      VAR name:addStub type:@[FlexibleNullability] java.lang.reflect.Method? [val]
+        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+          ARG p0: CONST String type=kotlin.String value="add"
+          ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
+              TYPE_ARG T: kotlin.Long
+              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
+            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
+              TYPE_ARG T: kotlin.Int
+              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
+            ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+              ARG arg0: CALL 'public open fun getReturnType (): @[FlexibleNullability] java.lang.Class<*>? declared in java.lang.reflect.Method' type=@[FlexibleNullability] java.lang.Class<*>? origin=GET_PROPERTY
+                ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                  GET_VAR 'val addStub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+              ARG arg1: CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
+                TYPE_ARG T: kotlin.Int
+                ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
+          then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+            CONST String type=kotlin.String value="Fail: add(Long, Int) has wrong return type"
+      VAR name:overloaded type:java.lang.Class<io.github.expo.kolibri.Overloaded> [val]
+        CALL 'public final fun <get-java> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-java>>): java.lang.Class<T of kotlin.jvm.<get-java>> declared in kotlin.jvm' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=GET_PROPERTY
+          TYPE_ARG T: io.github.expo.kolibri.Overloaded
+          ARG <this>: CLASS_REFERENCE 'CLASS CLASS name:Overloaded modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]' type=kotlin.reflect.KClass<io.github.expo.kolibri.Overloaded>
+      VAR name:long type:java.lang.Class<kotlin.Long>? [val]
+        CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
+          TYPE_ARG T: kotlin.Long
+          ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
+      VAR name:int type:java.lang.Class<kotlin.Int>? [val]
+        CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
+          TYPE_ARG T: kotlin.Int
+          ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
+            ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+              ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+                ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                  CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                    ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                    ARG p0: CONST String type=kotlin.String value="foo"
+                    ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                      GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+          then: BLOCK type=kotlin.Unit origin=null
+            RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+              CONST String type=kotlin.String value="Fail: foo(Long, Int) is not native"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
+            ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+              ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+                ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                  CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                    ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                    ARG p0: CONST String type=kotlin.String value="foo"
+                    ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                      GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+          then: BLOCK type=kotlin.Unit origin=null
+            RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+              CONST String type=kotlin.String value="Fail: foo(Long, Int, Int) is not native"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+            ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+              ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                  ARG p0: CONST String type=kotlin.String value="foo"
+                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+          then: BLOCK type=kotlin.Unit origin=null
+            RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+              CONST String type=kotlin.String value="Fail: foo(Int) is still native"
+      WHEN type=kotlin.Unit origin=IF
+        BRANCH
+          if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
+            ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
+              ARG <this>: TYPE_OP type=java.lang.reflect.Method origin=IMPLICIT_NOTNULL typeOperand=java.lang.reflect.Method
+                CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                  ARG p0: CONST String type=kotlin.String value="foo"
+                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+          then: BLOCK type=kotlin.Unit origin=null
+            RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+              CONST String type=kotlin.String value="Fail: foo(Int, Int) is still native"
+      RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
+        CONST String type=kotlin.String value="OK"
