@@ -67,6 +67,15 @@ subprojects {
         }
       }
     }
+
+    extensions.configure<PublishingExtension> {
+      repositories {
+        maven {
+          name = "centralBundle"
+          url = uri(rootProject.layout.buildDirectory.dir("central-bundle"))
+        }
+      }
+    }
   }
 }
 

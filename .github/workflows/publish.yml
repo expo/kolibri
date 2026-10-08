@@ -9,8 +9,8 @@ env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
 jobs:
-  publish-universal:
-    name: Publish runtime, kolibri-android and gradle-plugin
+  stage-universal:
+    name: Stage runtime, kolibri-android and gradle-plugin
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -25,14 +25,24 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish to Maven Central
-        run: ./gradlew :runtime:publishToMavenCentral :kolibri-android:publishToMavenCentral :gradle-plugin:publishToMavenCentral
+      - name: Stage signed artifacts
+        run: ./gradlew :runtime:publishAllPublicationsToCentralBundleRepository :kolibri-android:publishAllPublicationsToCentralBundleRepository :gradle-plugin:publishAllPublicationsToCentralBundleRepository
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+      # Every compiler-plugin build writes its own compiler-plugin/maven-metadata.xml, which would
+      # collide in the `publish` job. Central does not need it, so it stays out of every bundle.
+      - name: Upload staged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-bundle-universal
+          path: |
+            build/central-bundle/
+            !build/central-bundle/**/maven-metadata.xml*
+          if-no-files-found: error
+          retention-days: 7
 
   kotlin-versions:
     name: Kotlin versions
@@ -47,9 +57,9 @@ jobs:
         id: read
         run: echo "versions=$(jq -R -s -c 'split("\n") | map(select(length > 0))' gradle/kotlin-versions.txt)" >> "$GITHUB_OUTPUT"
 
-  publish-compiler:
-    name: Publish compiler-plugin for Kotlin ${{ matrix.kotlin-version }}
-    needs: [publish-universal, kotlin-versions]
+  stage-compiler:
+    name: Stage compiler-plugin for Kotlin ${{ matrix.kotlin-version }}
+    needs: kotlin-versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -68,11 +78,41 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish to Maven Central
-        run: ./gradlew :compiler-plugin:publishToMavenCentral -PkotlinVersion=${{ matrix.kotlin-version }}
+      - name: Stage signed artifacts
+        run: ./gradlew :compiler-plugin:publishAllPublicationsToCentralBundleRepository -PkotlinVersion=${{ matrix.kotlin-version }}
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+      - name: Upload staged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-bundle-kotlin-${{ matrix.kotlin-version }}
+          path: |
+            build/central-bundle/
+            !build/central-bundle/**/maven-metadata.xml*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish to Maven Central
+    needs: [stage-universal, stage-compiler]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Download staged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: central-bundle-*
+          path: build/central-bundle/
+          merge-multiple: true
+
+      - name: Upload one deployment to Maven Central
+        run: scripts/publish-to-maven-central.sh build/central-bundle "$DEPLOYMENT_NAME"
+        env:
+          DEPLOYMENT_NAME: kolibri-${{ github.ref_name }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
