@@ -1,11 +1,13 @@
 package io.github.expo.kolibri.binary
 
+import io.github.expo.kolibri.CalledFromNative
 import io.github.expo.kolibri.Kolibri
 import io.github.expo.kolibri.isAscii
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 @JvmInline
+@CalledFromNative(by = "kolibri/binary/BinaryBuffer.cpp")
 value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
   var position: Int
     get() = buffer.position()

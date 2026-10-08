@@ -34,6 +34,24 @@ target_link_libraries(mylib PRIVATE kolibri-android::kolibri)
 
 Build with `-DANDROID_STL=c++_shared`; Prefab fails the configure on an STL mismatch.
 
+### R8
+
+The `runtime` jar carries its own R8 rules, which AGP applies to the app. They keep what
+`@CalledFromNative` marks: put it on each class your native code finds by name, including each class
+whose natives it registers (the class keeps all of them), and on each method, field or constructor
+it resolves by name. Nothing else needs a rule.
+
+```kotlin
+@CalledFromNative(by = "mylib/Counter.cpp")
+class Counter(pointer: NativePointer) : NativeObject(pointer) {
+  @NativeMethod
+  external fun increment(): Int
+
+  @CalledFromNative
+  fun onOverflow(limit: Int) = println("overflow at $limit")
+}
+```
+
 ## Supported Kotlin versions
 
 A Kotlin compiler plugin is bound to the exact compiler it was built against, so Kolibri builds and

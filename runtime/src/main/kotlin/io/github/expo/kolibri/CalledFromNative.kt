@@ -22,9 +22,13 @@ package io.github.expo.kolibri
  * }
  * ```
  *
- * This annotation is documentation only - it changes no behaviour and is not read by the kolibri
- * compiler plugin. It does not apply to `external` functions: those are Kotlin declarations that
- * *call into* native code, and the compiler already ties them to a registered native binding.
+ * The rules in this library's `META-INF/proguard/kolibri.pro`, which AGP applies to an app, keep
+ * everything this annotation marks from R8: a marked class keeps its name and every `external`
+ * function it declares, since `registerNative` registers a class's whole table at once; a marked
+ * method, field or constructor keeps its name and signature. Annotate the class whose natives you
+ * register rather than the `external` functions themselves - those include the ones the kolibri
+ * compiler plugin generates for `@NativeMethod`. On a `@JvmField` property, target the field:
+ * `@field:CalledFromNative`.
  */
 @Target(
   AnnotationTarget.CLASS,

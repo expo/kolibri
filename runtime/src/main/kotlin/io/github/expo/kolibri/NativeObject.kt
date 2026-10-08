@@ -51,9 +51,11 @@ fun reachabilityFenceOf(obj: NativeObject?) {
   }
 }
 
+@CalledFromNative(by = "kolibri/NativeObject.cpp")
 abstract class NativeObject(pointer: NativePointer) {
   @Volatile
   @JvmField
+  @field:CalledFromNative(by = "kolibri/NativeObject.cpp")
   var nativePointer: Long = pointer.value
 
   private val cleanable: Cleanable = NativeCleaner
