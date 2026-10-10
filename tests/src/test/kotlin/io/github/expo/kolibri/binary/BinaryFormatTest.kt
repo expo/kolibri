@@ -210,6 +210,50 @@ class BinaryFormatTest {
   }
 
   @Test
+  fun `ASCII strings of every length around the eight-byte stores keep the format`() {
+    for (length in 0..40) {
+      val value = String(CharArray(length) { 'a' + it % 26 })
+      val raw = buffer.duplicateView()
+      raw.putString(value)
+      assertEquals(4 + length, raw.position, "buffer size of a $length-char string")
+      raw.position = 0
+      assertEquals(length, raw.getInt(), "prefix of a $length-char string")
+      assertContentEquals(value.toByteArray(Charsets.US_ASCII), raw.getBytes(length))
+      raw.position = 0
+      assertEquals(value, raw.getString())
+      assertEquals(4 + length, raw.position, "read size of a $length-char string")
+    }
+  }
+
+  @Test
+  fun `a non-ASCII character anywhere takes the UTF-16 arm`() {
+    for (length in 1..20) {
+      for (at in 0 until length) {
+        val value = String(CharArray(length) { if (it == at) 'ż' else 'a' })
+        val raw = buffer.duplicateView()
+        raw.putString(value)
+        assertEquals(4 + 2 * length, raw.position, "buffer size of $value")
+        raw.position = 0
+        assertEquals(-length, raw.getInt(), "prefix of $value")
+        raw.position = 0
+        assertEquals(value, raw.getString())
+      }
+    }
+  }
+
+  @Test
+  fun `an ASCII string that does not fit overflows and one that is cut short underflows`() {
+    assertFailsWith<java.nio.BufferOverflowException> {
+      BinaryBuffer.allocate(4 + 9).putString("0123456789")
+    }
+
+    val cut = BinaryBuffer.allocate(4 + 9)
+    cut.putInt(10)
+    cut.position = 0
+    assertFailsWith<java.nio.BufferUnderflowException> { cut.getString() }
+  }
+
+  @Test
   fun `unknown buffer tag is rejected by getValue`() {
     val raw = BinaryBuffer.allocate(4)
     raw.putTag(16)

@@ -60,6 +60,10 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     val size = value.length
     val useScratch = size <= MAX_RETAINED_STRING_UNITS
 
+    if (useScratch && putShortAscii(value, size)) {
+      return@apply
+    }
+
     if (value.isAscii()) {
       buffer.putInt(size)
       if (useScratch) {
@@ -80,6 +84,70 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
       }
       position += size * Char.SIZE_BYTES
     }
+  }
+
+  /**
+   * Writes [value] the way [putString] writes an ASCII string, if it is one and it fits, and
+   * reports whether it did.
+   *
+   * One pass, straight into the buffer: eight characters per store, the rest one by one. The
+   * general path reads the string twice (the ASCII check, then the copy into a scratch array) and
+   * then copies the array into the buffer in bulk, which on Android is a native call - more than
+   * the whole of this for the short strings that most payloads carry.
+   *
+   * Nothing is committed unless it returns true: the bytes of a string that turns out not to be
+   * ASCII land past the position, where the general path overwrites them, and a string that does
+   * not fit is left to the general path, which throws the overflow for it.
+   */
+  private fun putShortAscii(value: String, size: Int): Boolean {
+    val start = buffer.position()
+    if (buffer.limit() - start < Int.SIZE_BYTES + size) {
+      return false
+    }
+
+    var index = start + Int.SIZE_BYTES
+    var i = 0
+    if (LITTLE_ENDIAN) {
+      while (i + Long.SIZE_BYTES <= size) {
+        val c0 = value[i].code
+        val c1 = value[i + 1].code
+        val c2 = value[i + 2].code
+        val c3 = value[i + 3].code
+        val c4 = value[i + 4].code
+        val c5 = value[i + 5].code
+        val c6 = value[i + 6].code
+        val c7 = value[i + 7].code
+        if ((c0 or c1 or c2 or c3 or c4 or c5 or c6 or c7) >= 0x80) {
+          return false
+        }
+        buffer.putLong(
+          index,
+          c0.toLong() or
+            (c1.toLong() shl 8) or
+            (c2.toLong() shl 16) or
+            (c3.toLong() shl 24) or
+            (c4.toLong() shl 32) or
+            (c5.toLong() shl 40) or
+            (c6.toLong() shl 48) or
+            (c7.toLong() shl 56),
+        )
+        i += Long.SIZE_BYTES
+        index += Long.SIZE_BYTES
+      }
+    }
+    while (i < size) {
+      val c = value[i].code
+      if (c >= 0x80) {
+        return false
+      }
+      buffer.put(index, c.toByte())
+      i++
+      index++
+    }
+
+    buffer.putInt(start, size)
+    buffer.position(index)
+    return true
   }
 
   fun getBoolean(): Boolean = buffer.get() != 0.toByte()
@@ -291,6 +359,12 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
   fun getExternalSchemaId(): Int = getInt()
 
   companion object {
+    /**
+     * Whether a `long` stored in this buffer's (native) byte order puts its lowest byte first, so
+     * that eight packed characters land in string order.
+     */
+    private val LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+
     fun shared(): BinaryBuffer = threadBuffer.get()
 
     /**
