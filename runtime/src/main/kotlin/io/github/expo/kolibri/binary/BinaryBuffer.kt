@@ -60,11 +60,19 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     val size = value.length
     val useScratch = size <= MAX_RETAINED_STRING_UNITS
 
-    if (useScratch && putShortAscii(value, size)) {
-      return@apply
+    val isAscii = if (useScratch) {
+      when (putShortAscii(value, size)) {
+        WROTE_ASCII -> return@apply
+        // Already read up to its first non-ASCII character: a second scan would cost a long
+        // string with one late non-ASCII character more than the fast path saves.
+        FOUND_NON_ASCII -> false
+        else -> value.isAscii()
+      }
+    } else {
+      value.isAscii()
     }
 
-    if (value.isAscii()) {
+    if (isAscii) {
       buffer.putInt(size)
       if (useScratch) {
         val bytes = stringScratch.get().bytes(size)
@@ -88,21 +96,21 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
 
   /**
    * Writes [value] the way [putString] writes an ASCII string, if it is one and it fits, and
-   * reports whether it did.
+   * reports what it found: [WROTE_ASCII], [FOUND_NON_ASCII] or [NO_ROOM].
    *
    * One pass, straight into the buffer: eight characters per store, the rest one by one. The
    * general path reads the string twice (the ASCII check, then the copy into a scratch array) and
    * then copies the array into the buffer in bulk, which on Android is a native call - more than
    * the whole of this for the short strings that most payloads carry.
    *
-   * Nothing is committed unless it returns true: the bytes of a string that turns out not to be
-   * ASCII land past the position, where the general path overwrites them, and a string that does
-   * not fit is left to the general path, which throws the overflow for it.
+   * Nothing is committed unless it returns [WROTE_ASCII]: the bytes of a string that turns out not
+   * to be ASCII land past the position, where the general path overwrites them, and a string that
+   * does not fit is left to the general path, which throws the overflow for it.
    */
-  private fun putShortAscii(value: String, size: Int): Boolean {
+  private fun putShortAscii(value: String, size: Int): Int {
     val start = buffer.position()
     if (buffer.limit() - start < Int.SIZE_BYTES + size) {
-      return false
+      return NO_ROOM
     }
 
     var index = start + Int.SIZE_BYTES
@@ -118,7 +126,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
         val c6 = value[i + 6].code
         val c7 = value[i + 7].code
         if ((c0 or c1 or c2 or c3 or c4 or c5 or c6 or c7) >= 0x80) {
-          return false
+          return FOUND_NON_ASCII
         }
         buffer.putLong(
           index,
@@ -138,7 +146,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     while (i < size) {
       val c = value[i].code
       if (c >= 0x80) {
-        return false
+        return FOUND_NON_ASCII
       }
       buffer.put(index, c.toByte())
       i++
@@ -147,7 +155,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
 
     buffer.putInt(start, size)
     buffer.position(index)
-    return true
+    return WROTE_ASCII
   }
 
   fun getBoolean(): Boolean = buffer.get() != 0.toByte()
@@ -364,6 +372,11 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
      * that eight packed characters land in string order.
      */
     private val LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
+
+    /** What [putShortAscii] found. */
+    private const val WROTE_ASCII = 0
+    private const val FOUND_NON_ASCII = 1
+    private const val NO_ROOM = 2
 
     fun shared(): BinaryBuffer = threadBuffer.get()
 
