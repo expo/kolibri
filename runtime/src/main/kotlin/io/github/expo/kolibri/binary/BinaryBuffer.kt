@@ -3,6 +3,7 @@ package io.github.expo.kolibri.binary
 import io.github.expo.kolibri.CalledFromNative
 import io.github.expo.kolibri.Kolibri
 import io.github.expo.kolibri.isAscii
+import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -61,10 +62,8 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
     val useScratch = size <= MAX_RETAINED_STRING_UNITS
 
     val isAscii = if (useScratch) {
-      when (putShortAscii(value, size)) {
+      when (tryPutAscii(value, size)) {
         WROTE_ASCII -> return@apply
-        // Already read up to its first non-ASCII character: a second scan would cost a long
-        // string with one late non-ASCII character more than the fast path saves.
         FOUND_NON_ASCII -> false
         else -> value.isAscii()
       }
@@ -82,34 +81,52 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
         buffer.put(value.toByteArray(Charsets.ISO_8859_1))
       }
     } else {
-      buffer.putInt(-size)
-      if (useScratch) {
-        val chars = stringScratch.get().chars(size)
-        value.toCharArray(chars, 0, 0, size)
-        buffer.asCharBuffer().put(chars, 0, size)
-      } else {
-        buffer.asCharBuffer().put(value)
-      }
-      position += size * Char.SIZE_BYTES
+      putUtf16(value, size)
     }
+  }
+
+  /**
+   * Writes [value], which must be ASCII, in the ASCII form of [putString], without the check that
+   * picks the form. The position does not move if it throws.
+   *
+   * @throws IllegalArgumentException if [value] is not ASCII
+   * @throws BufferOverflowException if [value] does not fit
+   */
+  fun putAsciiString(value: String) = apply {
+    when (tryPutAscii(value, value.length)) {
+      WROTE_ASCII -> Unit
+      FOUND_NON_ASCII -> throw IllegalArgumentException("Not an ASCII string")
+      else -> throw BufferOverflowException()
+    }
+  }
+
+  /**
+   * Writes [value] in the UTF-16 form of [putString], which carries any string, without the check
+   * that picks the form.
+   */
+  fun putUtf16String(value: String) = apply {
+    putUtf16(value, value.length)
+  }
+
+  private fun putUtf16(value: String, size: Int) {
+    buffer.putInt(-size)
+    if (size <= MAX_RETAINED_STRING_UNITS) {
+      val chars = stringScratch.get().chars(size)
+      value.toCharArray(chars, 0, 0, size)
+      buffer.asCharBuffer().put(chars, 0, size)
+    } else {
+      buffer.asCharBuffer().put(value)
+    }
+    position += size * Char.SIZE_BYTES
   }
 
   /**
    * Writes [value] the way [putString] writes an ASCII string, if it is one and it fits, and
    * reports what it found: [WROTE_ASCII], [FOUND_NON_ASCII] or [NO_ROOM].
-   *
-   * One pass, straight into the buffer: eight characters per store, the rest one by one. The
-   * general path reads the string twice (the ASCII check, then the copy into a scratch array) and
-   * then copies the array into the buffer in bulk, which on Android is a native call - more than
-   * the whole of this for the short strings that most payloads carry.
-   *
-   * Nothing is committed unless it returns [WROTE_ASCII]: the bytes of a string that turns out not
-   * to be ASCII land past the position, where the general path overwrites them, and a string that
-   * does not fit is left to the general path, which throws the overflow for it.
    */
-  private fun putShortAscii(value: String, size: Int): Int {
+  private fun tryPutAscii(value: String, size: Int): Int {
     val start = buffer.position()
-    if (buffer.limit() - start < Int.SIZE_BYTES + size) {
+    if (size > buffer.limit() - start - Int.SIZE_BYTES) {
       return NO_ROOM
     }
 
@@ -196,6 +213,29 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
       position += size * Char.SIZE_BYTES
       value
     }
+  }
+
+  /**
+   * Reads a string written in the ASCII form, as [putAsciiString] writes it. The position does not
+   * move if it throws.
+   *
+   * @throws IllegalStateException if the string is in the UTF-16 form
+   */
+  fun getAsciiString(): String {
+    check(buffer.getInt(buffer.position()) >= 0) { "Expected an ASCII string, found a UTF-16 one" }
+    return getString()
+  }
+
+  /**
+   * Reads a string written in the UTF-16 form, as [putUtf16String] writes it. The position does not
+   * move if it throws.
+   *
+   * @throws IllegalStateException if the string is in the ASCII form
+   */
+  fun getUtf16String(): String {
+    // Reads through getString: a reader of its own measured slower on HotSpot for short strings.
+    check(buffer.getInt(buffer.position()) <= 0) { "Expected a UTF-16 string, found an ASCII one" }
+    return getString()
   }
 
   fun putDoubleArray(values: DoubleArray) = apply {
@@ -373,7 +413,7 @@ value class BinaryBuffer private constructor(private val buffer: ByteBuffer) {
      */
     private val LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
 
-    /** What [putShortAscii] found. */
+    /** What [tryPutAscii] found. */
     private const val WROTE_ASCII = 0
     private const val FOUND_NON_ASCII = 1
     private const val NO_ROOM = 2

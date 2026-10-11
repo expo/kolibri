@@ -253,6 +253,104 @@ class BinaryFormatTest {
     assertFailsWith<java.nio.BufferUnderflowException> { cut.getString() }
   }
 
+  private fun bytesOf(write: BinaryBuffer.() -> Unit): ByteArray {
+    val out = BinaryBuffer.allocate(64 * 1024)
+    out.write()
+    val size = out.position
+    out.position = 0
+    return out.getBytes(size)
+  }
+
+  @Test
+  fun `putAsciiString writes what putString writes for an ASCII string`() {
+    for (length in (0..40) + listOf(4096, 4097, 10_000)) {
+      val value = String(CharArray(length) { 'a' + it % 26 })
+      assertContentEquals(bytesOf { putString(value) }, bytesOf { putAsciiString(value) }, "$length chars")
+
+      val raw = buffer.duplicateView()
+      raw.putAsciiString(value)
+      raw.position = 0
+      assertEquals(value, raw.getAsciiString())
+      raw.position = 0
+      assertEquals(value, raw.getString())
+    }
+  }
+
+  @Test
+  fun `putUtf16String writes the UTF-16 form for any string`() {
+    val values = listOf(
+      "abc",
+      "zażółć gęślą jaźń",
+      "a😀b",
+      String(CharArray(4097) { 'a' + it % 26 }),
+      String(CharArray(5000) { if (it % 7 == 0) 'ż' else 'a' }),
+    )
+    for (value in values) {
+      if (!value.all { it.code < 0x80 }) {
+        assertContentEquals(bytesOf { putString(value) }, bytesOf { putUtf16String(value) }, value.take(20))
+      }
+
+      val raw = buffer.duplicateView()
+      raw.putUtf16String(value)
+      assertEquals(4 + 2 * value.length, raw.position, value.take(20))
+      raw.position = 0
+      assertEquals(-value.length, raw.getInt())
+      raw.position = 0
+      assertEquals(value, raw.getUtf16String())
+      raw.position = 0
+      assertEquals(value, raw.getString())
+    }
+  }
+
+  @Test
+  fun `putAsciiString rejects a non-ASCII string and does not move the position`() {
+    for (at in listOf(0, 7, 8, 15, 20)) {
+      val value = String(CharArray(21) { if (it == at) 'ż' else 'a' })
+      val raw = buffer.duplicateView()
+      raw.position = 3
+      assertFailsWith<IllegalArgumentException> { raw.putAsciiString(value) }
+      assertEquals(3, raw.position, "non-ASCII at $at")
+    }
+    val long = String(CharArray(5000) { if (it == 4999) 'é' else 'a' })
+    assertFailsWith<IllegalArgumentException> { buffer.duplicateView().putAsciiString(long) }
+  }
+
+  @Test
+  fun `putAsciiString overflows without moving the position when the string does not fit`() {
+    val small = BinaryBuffer.allocate(4 + 9)
+    assertFailsWith<java.nio.BufferOverflowException> { small.putAsciiString("0123456789") }
+    assertEquals(0, small.position)
+
+    val exact = BinaryBuffer.allocate(4 + 10)
+    exact.putAsciiString("0123456789")
+    assertEquals(14, exact.position)
+  }
+
+  @Test
+  fun `getAsciiString and getUtf16String reject the other form without moving the position`() {
+    val raw = buffer.duplicateView()
+    raw.putUtf16String("abc")
+    raw.position = 0
+    assertFailsWith<IllegalStateException> { raw.getAsciiString() }
+    assertEquals(0, raw.position)
+    assertEquals("abc", raw.getUtf16String())
+
+    raw.position = 0
+    raw.putAsciiString("abc")
+    raw.position = 0
+    assertFailsWith<IllegalStateException> { raw.getUtf16String() }
+    assertEquals(0, raw.position)
+    assertEquals("abc", raw.getAsciiString())
+
+    // The empty string has one form, prefix 0, which both accept.
+    raw.position = 0
+    raw.putAsciiString("")
+    raw.putUtf16String("")
+    raw.position = 0
+    assertEquals("", raw.getUtf16String())
+    assertEquals("", raw.getAsciiString())
+  }
+
   @Test
   fun `unknown buffer tag is rejected by getValue`() {
     val raw = BinaryBuffer.allocate(4)
