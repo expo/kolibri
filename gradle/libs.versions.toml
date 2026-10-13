@@ -1,5 +1,5 @@
 [versions]
-kolibri = "0.2.1"
+kolibri = "0.2.2"
 
 # https://github.com/JetBrains/kotlin
 # The oldest supported release. Every release in gradle/kotlin-versions.txt is built and tested;
