@@ -28,44 +28,13 @@ namespace expo::kolibri::binary {
     };
   }
 
-  void Reader::require(size_t n) const {
-    if constexpr (kCheckedCodec) {
-      if (static_cast<size_t>(end - position) < n) {
-        throw std::runtime_error("Truncated binary payload");
-      }
-    }
+  void Reader::throwTruncated() {
+    throw std::runtime_error("Truncated binary payload");
   }
 
-  Tag Reader::readTag() { return static_cast<Tag>(read<uint8_t>()); }
-
-  bool Reader::readPresence() {
-    const uint8_t present = read<uint8_t>();
-    if constexpr (kCheckedCodec) {
-      if (present > 1) {
-        throw std::runtime_error("Invalid presence marker in binary payload");
-      }
-    }
-    return present != 0;
+  void Reader::throwInvalid(const char* message) {
+    throw std::runtime_error(message);
   }
-
-  size_t Reader::readCount() {
-    const auto count = read<int32_t>();
-    if constexpr (kCheckedCodec) {
-      if (count < 0) {
-        throw std::runtime_error("Negative count in binary payload");
-      }
-    }
-    return static_cast<size_t>(count);
-  }
-
-  const uint8_t* Reader::readBytes(size_t n) {
-    require(n);
-    const uint8_t* bytes = position;
-    position += n;
-    return bytes;
-  }
-
-  bool Reader::isOnEnd() const { return position == end; }
 
   std::string Reader::readString() {
     return readAdaptiveString(
