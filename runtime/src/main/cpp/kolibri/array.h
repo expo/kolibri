@@ -17,10 +17,22 @@
 #include <kolibri/signature.h>
 #include <kolibri/meta/meta.h>
 #include <kolibri/class.h>
+#include <kolibri/defines.h>
 
 namespace expo::kolibri {
   namespace detail {
     inline constexpr std::size_t kArrayChunkSize = 256;
+
+    NORETURN COLD NOINLINE inline void throwNullArray(const std::string_view descriptor) {
+      throw std::runtime_error("Cannot access a null Java array " + std::string(descriptor));
+    }
+
+    NORETURN COLD NOINLINE inline void throwArrayNotCreated(
+      JNIEnv* env,
+      const std::string_view descriptor
+    ) {
+      throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+    }
 
     template<typename T>
     struct jni_array_traits;
@@ -297,8 +309,8 @@ namespace expo::kolibri {
 
     static Ref<JArray> create(JNIEnv* env, jsize size) {
       JniType array = (env->*Traits::newArray)(size);
-      if (array == nullptr) {
-        throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+      if (array == nullptr) [[unlikely]] {
+        detail::throwArrayNotCreated(env, descriptor);
       }
       return Ref<JArray>::adopt(env, array);
     }
@@ -318,8 +330,8 @@ namespace expo::kolibri {
 
     static JniType createRaw(JNIEnv* env, std::span<const Element> data) {
       JniType array = (env->*Traits::newArray)(data.size());
-      if (array == nullptr) {
-        throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+      if (array == nullptr) [[unlikely]] {
+        detail::throwArrayNotCreated(env, descriptor);
       }
 
       if (!data.empty()) {
@@ -337,8 +349,8 @@ namespace expo::kolibri {
     template<std::size_t ChunkSize = detail::kArrayChunkSize, detail::array_producer<Element> Producer>
     static JniType createRaw(JNIEnv* env, jsize size, Producer&& producer) {
       JniType array = (env->*Traits::newArray)(size);
-      if (array == nullptr) {
-        throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+      if (array == nullptr) [[unlikely]] {
+        detail::throwArrayNotCreated(env, descriptor);
       }
       detail::fillArrayChunked<Element, ChunkSize>(
         env, array, size, std::forward<Producer>(producer)
@@ -414,10 +426,8 @@ namespace expo::kolibri {
 
     private:
       JniType handle() const {
-        if (this->handle_ == nullptr) {
-          throw std::runtime_error(
-            "Cannot access a null Java array " + std::string(descriptor)
-          );
+        if (this->handle_ == nullptr) [[unlikely]] {
+          detail::throwNullArray(descriptor);
         }
         return reinterpret_cast<JniType>(this->handle_);
       }
@@ -440,8 +450,8 @@ namespace expo::kolibri {
         detail::jni_object_array_traits<Element>::javaClass(env),
         initial
       );
-      if (array == nullptr) {
-        throwWithPending(env, "Could not create a Java array " + std::string(descriptor));
+      if (array == nullptr) [[unlikely]] {
+        detail::throwArrayNotCreated(env, descriptor);
       }
       return array;
     }
@@ -473,10 +483,8 @@ namespace expo::kolibri {
 
     private:
       JniType handle() const {
-        if (this->handle_ == nullptr) {
-          throw std::runtime_error(
-            "Cannot access a null Java array " + std::string(descriptor)
-          );
+        if (this->handle_ == nullptr) [[unlikely]] {
+          detail::throwNullArray(descriptor);
         }
         return reinterpret_cast<JniType>(this->handle_);
       }

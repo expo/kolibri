@@ -55,4 +55,8 @@ namespace expo::kolibri {
     }
     throw std::runtime_error(message);
   }
+
+  void throwWithPending(JNIEnv* env, const char* message) {
+    throwWithPending(env, std::string(message));
+  }
 } // namespace expo::kolibri

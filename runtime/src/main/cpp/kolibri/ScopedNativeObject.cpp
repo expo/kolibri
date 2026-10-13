@@ -4,15 +4,17 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <kolibri/defines.h>
+
 namespace expo::kolibri {
   namespace {
     std::mutex& scopeMutex() {
-      static std::mutex mutex;
+      NO_DESTROY static std::mutex mutex;
       return mutex;
     }
 
     std::unordered_map<const void*, std::unordered_set<detail::ScopeHook*>>& scopeMap() {
-      static std::unordered_map<const void*, std::unordered_set<detail::ScopeHook*>> map;
+      NO_DESTROY static std::unordered_map<const void*, std::unordered_set<detail::ScopeHook*>> map;
       return map;
     }
   } // namespace

@@ -23,4 +23,6 @@ namespace expo::kolibri {
   void throwJavaRuntimeException(JNIEnv* env, const char* message);
 
   [[noreturn]] void throwWithPending(JNIEnv* env, const std::string& message);
+
+  [[noreturn]] void throwWithPending(JNIEnv* env, const char* message);
 }
