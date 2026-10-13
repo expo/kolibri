@@ -14,8 +14,7 @@ namespace expo::kolibri {
   struct Constructor<Class, void(Args...)>
       : FunctionToken<Class, "<init>", void, Args...> {
     static jmethodID id(JNIEnv* env) {
-      static jmethodID methodId = getMethodId<Constructor>(env);
-      return methodId;
+      return detail::cachedId<jmethodID, &getMethodId<Constructor>>(env);
     }
 
     template<typename... CallArgs>

@@ -12,8 +12,7 @@ namespace expo::kolibri {
   template<typename Class, meta::CTString Name, typename T>
   struct Field : FieldToken<Class, Name, T> {
     static jfieldID id(JNIEnv* env) {
-      static jfieldID fieldId = getFieldId<Field>(env);
-      return fieldId;
+      return detail::cachedId<jfieldID, &getFieldId<Field>>(env);
     }
 
     template<typename Receiver>

@@ -1,5 +1,7 @@
 #pragma once
+
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <jni.h>
 #include <tuple>
@@ -18,10 +20,10 @@ namespace expo::kolibri {
   namespace detail {
     template<typename Declared>
     inline constexpr bool is_jni_reference_slot_v =
-        !(std::is_same_v<Declared, jboolean> || std::is_same_v<Declared, jbyte> ||
-          std::is_same_v<Declared, jchar> || std::is_same_v<Declared, jshort> ||
-          std::is_same_v<Declared, jint> || std::is_same_v<Declared, jlong> ||
-          std::is_same_v<Declared, jfloat> || std::is_same_v<Declared, jdouble>);
+      !(std::is_same_v<Declared, jboolean> || std::is_same_v<Declared, jbyte> ||
+        std::is_same_v<Declared, jchar> || std::is_same_v<Declared, jshort> ||
+        std::is_same_v<Declared, jint> || std::is_same_v<Declared, jlong> ||
+        std::is_same_v<Declared, jfloat> || std::is_same_v<Declared, jdouble>);
 
     template<typename Declared, typename Passed>
     inline constexpr bool is_compatible_jni_arg_v = [] {
@@ -49,9 +51,9 @@ namespace expo::kolibri {
 
     template<typename DeclaredTuple, typename... Passed>
     inline constexpr bool are_compatible_jni_args_v =
-        sizeof...(Passed) == std::tuple_size_v<DeclaredTuple> &&
-        compatible_jni_args_impl<DeclaredTuple, std::tuple<Passed...>>(
-          std::index_sequence_for<Passed...>{});
+      sizeof...(Passed) == std::tuple_size_v<DeclaredTuple> &&
+      compatible_jni_args_impl<DeclaredTuple, std::tuple<Passed...>>(
+        std::index_sequence_for<Passed...>{});
 
     template<typename T, std::size_t N>
     jvalue toJValue(
@@ -140,56 +142,122 @@ namespace expo::kolibri {
     return values;
   }
 
+  namespace detail {
+    NORETURN COLD NOINLINE inline void throwMissingMember(
+      JNIEnv* env,
+      const char* what,
+      std::string_view classDescriptor,
+      const char* name,
+      const char* signature
+    ) {
+      throwWithPending(env, what + describeMember(classDescriptor, name, signature));
+    }
+
+    NORETURN COLD NOINLINE inline void throwNullReceiver(
+      const char* what,
+      std::string_view classDescriptor,
+      const char* name,
+      const char* signature
+    ) {
+      throw std::runtime_error(
+        what + describeMember(classDescriptor, name, signature) + " on null receiver"
+      );
+    }
+  }
+
+  namespace detail {
+    NOINLINE inline jmethodID findMethodId(
+      JNIEnv* env,
+      bool isStatic,
+      jclass (*classOf)(JNIEnv*),
+      std::string_view classDescriptor,
+      const char* name,
+      const char* signature
+    ) {
+      const jclass clazz = classOf(env);
+      const jmethodID id = isStatic
+                             ? env->GetStaticMethodID(clazz, name, signature)
+                             : env->GetMethodID(clazz, name, signature);
+      if (id == nullptr) [[unlikely]] {
+        throwMissingMember(
+          env,
+          isStatic ? "Could not find static method" : "Could not find method",
+          classDescriptor,
+          name,
+          signature
+        );
+      }
+      return id;
+    }
+
+    NOINLINE inline jfieldID findFieldId(
+      JNIEnv* env,
+      bool isStatic,
+      jclass (*classOf)(JNIEnv*),
+      std::string_view classDescriptor,
+      const char* name,
+      const char* signature
+    ) {
+      const jclass clazz = classOf(env);
+      const jfieldID id = isStatic
+                            ? env->GetStaticFieldID(clazz, name, signature)
+                            : env->GetFieldID(clazz, name, signature);
+      if (id == nullptr) [[unlikely]] {
+        throwMissingMember(
+          env,
+          isStatic ? "Could not find static field" : "Could not find field",
+          classDescriptor,
+          name,
+          signature
+        );
+      }
+      return id;
+    }
+  }
+
   template<concepts::FunctionToken Token>
   jmethodID getMethodId(JNIEnv* env) {
-    jmethodID id = env->GetMethodID(
-      Token::ClassType::javaClass(env),
-      Token::name(),
-      Token::signature()
+    using Class = Token::ClassType;
+    return detail::findMethodId(
+      env, false, &Class::javaClass, Class::descriptor, Token::name(), Token::signature()
     );
-    if (id == nullptr) {
-      throwWithPending(env, "Could not find method" + tokenDebugDescription<Token>());
-    }
-    return id;
   }
 
   template<concepts::FunctionToken Token>
   jmethodID getStaticMethodId(JNIEnv* env) {
-    jmethodID id = env->GetStaticMethodID(
-      Token::ClassType::javaClass(env),
-      Token::name(),
-      Token::signature()
+    using Class = Token::ClassType;
+    return detail::findMethodId(
+      env, true, &Class::javaClass, Class::descriptor, Token::name(), Token::signature()
     );
-    if (id == nullptr) {
-      throwWithPending(env, "Could not find static method" + tokenDebugDescription<Token>());
-    }
-    return id;
   }
 
   template<concepts::FieldToken Token>
   jfieldID getFieldId(JNIEnv* env) {
-    jfieldID id = env->GetFieldID(
-      Token::ClassType::javaClass(env),
-      Token::name(),
-      Token::signature()
+    using Class = Token::ClassType;
+    return detail::findFieldId(
+      env, false, &Class::javaClass, Class::descriptor, Token::name(), Token::signature()
     );
-    if (id == nullptr) {
-      throwWithPending(env, "Could not find field" + tokenDebugDescription<Token>());
-    }
-    return id;
   }
 
   template<concepts::FieldToken Token>
   jfieldID getStaticFieldId(JNIEnv* env) {
-    jfieldID id = env->GetStaticFieldID(
-      Token::ClassType::javaClass(env),
-      Token::name(),
-      Token::signature()
+    using Class = Token::ClassType;
+    return detail::findFieldId(
+      env, true, &Class::javaClass, Class::descriptor, Token::name(), Token::signature()
     );
-    if (id == nullptr) {
-      throwWithPending(env, "Could not find static field" + tokenDebugDescription<Token>());
+  }
+
+  namespace detail {
+    template<typename Id, Id (*Resolve)(JNIEnv*)>
+    ALWAYS_INLINE Id cachedId(JNIEnv* env) {
+      static constinit std::atomic<Id> slot{nullptr};
+      Id id = slot.load(std::memory_order_acquire);
+      if (id == nullptr) [[unlikely]] {
+        id = Resolve(env);
+        slot.store(id, std::memory_order_release);
+      }
+      return id;
     }
-    return id;
   }
 
   template<typename R, bool NoThrow>
@@ -417,7 +485,7 @@ namespace expo::kolibri {
     std::array<Ref<>, sizeof...(Args)> retained{};
     auto jargs = makeJValues(env, retained, std::forward<Args>(args)...);
     const jobject result =
-        env->NewObjectA(Token::ClassType::javaClass(env), Token::id(env), jargs.data());
+      env->NewObjectA(Token::ClassType::javaClass(env), Token::id(env), jargs.data());
     checkAndThrowPending(env);
     return result;
   }
@@ -441,9 +509,9 @@ namespace expo::kolibri {
       "JNI method token called with an argument that does not match its declared slot type"
     );
 
-    if (receiver == nullptr) {
-      throw std::runtime_error(
-        "Cannot call " + tokenDebugDescription<Token>() + " on null receiver"
+    if (receiver == nullptr) [[unlikely]] {
+      detail::throwNullReceiver(
+        "Cannot call ", Token::ClassType::descriptor, Token::name(), Token::signature()
       );
     }
 
@@ -480,9 +548,9 @@ namespace expo::kolibri {
 
   template<concepts::FieldToken Token>
   decltype(auto) get(JNIEnv* env, jobject receiver, Token) {
-    if (receiver == nullptr) {
-      throw std::runtime_error(
-        "Cannot read " + tokenDebugDescription<Token>() + " on null receiver"
+    if (receiver == nullptr) [[unlikely]] {
+      detail::throwNullReceiver(
+        "Cannot read ", Token::ClassType::descriptor, Token::name(), Token::signature()
       );
     }
 
@@ -495,9 +563,9 @@ namespace expo::kolibri {
       detail::is_compatible_jni_arg_v<typename Token::Value, Value>,
       "JNI field token written with a value that does not match its declared type"
     );
-    if (receiver == nullptr) {
-      throw std::runtime_error(
-        "Cannot write " + tokenDebugDescription<Token>() + " on null receiver"
+    if (receiver == nullptr) [[unlikely]] {
+      detail::throwNullReceiver(
+        "Cannot write ", Token::ClassType::descriptor, Token::name(), Token::signature()
       );
     }
 

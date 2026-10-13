@@ -2,9 +2,11 @@
 
 #include <concepts>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 
+#include <kolibri/defines.h>
 #include <kolibri/meta/CTString.h>
 #include <kolibri/signature.h>
 #include <kolibri/meta/meta.h>
@@ -64,8 +66,18 @@ namespace expo::kolibri {
         Token<TokenCandidate> && std::is_base_of_v<detail::FieldTokenTag, TokenCandidate>;
   }
 
+  namespace detail {
+    COLD NOINLINE inline std::string describeMember(
+      const std::string_view classDescriptor,
+      const char* name,
+      const char* signature
+    ) {
+      return std::string(classDescriptor) + "." + name + signature;
+    }
+  }
+
   template<concepts::Token T>
   std::string tokenDebugDescription() {
-    return std::string(T::ClassType::descriptor) + "." + std::string(T::name()) + T::signature();
+    return detail::describeMember(T::ClassType::descriptor, T::name(), T::signature());
   }
 }

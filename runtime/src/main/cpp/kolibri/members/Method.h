@@ -12,8 +12,7 @@ namespace expo::kolibri {
     static constexpr bool noThrow = NoThrow;
 
     static jmethodID id(JNIEnv* env) {
-      static jmethodID methodId = getMethodId<MethodBase>(env);
-      return methodId;
+      return detail::cachedId<jmethodID, &getMethodId<MethodBase>>(env);
     }
 
     template<typename Receiver, typename... CallArgs>

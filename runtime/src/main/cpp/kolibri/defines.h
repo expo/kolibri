@@ -10,6 +10,12 @@
 #define HIDDEN
 #endif
 
+#define NOINLINE [[gnu::noinline]]
+
+#define COLD [[gnu::cold]]
+
+#define NORETURN [[noreturn]]
+
 namespace expo::kolibri {
   inline constexpr int kMaxLocalFrameSize = 128;
 }

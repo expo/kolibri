@@ -193,32 +193,27 @@ namespace expo::kolibri {
 
     template<auto Callable>
     NativeMethodsBuilder& method(const char* name) {
-      methods_.push_back(makeNativeMethod<Callable>(name));
-      return *this;
+      return add(makeNativeMethod<Callable>(name));
     }
 
     template<auto Callable, typename Signature> requires std::is_function_v<Signature>
     NativeMethodsBuilder& method(const char* name) {
-      methods_.push_back(makeNativeMethod<Callable, Signature>(name));
-      return *this;
+      return add(makeNativeMethod<Callable, Signature>(name));
     }
 
     template<auto Callable>
     NativeMethodsBuilder& method(const char* name, const char* signature) {
-      methods_.push_back(makeNativeMethod<Callable>(name, signature));
-      return *this;
+      return add(makeNativeMethod<Callable>(name, signature));
     }
 
     template<typename Lambda>
     NativeMethodsBuilder& method(const char* name, Lambda lambda) {
-      methods_.push_back(makeNativeMethod(name, lambda));
-      return *this;
+      return add(makeNativeMethod(name, lambda));
     }
 
     template<typename Lambda>
     NativeMethodsBuilder& method(const char* name, const char* signature, Lambda lambda) {
-      methods_.push_back(makeNativeMethod(name, signature, lambda));
-      return *this;
+      return add(makeNativeMethod(name, signature, lambda));
     }
 
     Ref<> commit() {
@@ -230,6 +225,11 @@ namespace expo::kolibri {
     }
 
   private:
+    NOINLINE NativeMethodsBuilder& add(const JNINativeMethod& method) {
+      methods_.push_back(method);
+      return *this;
+    }
+
     JNIEnv* env_;
     std::string_view descriptor_;
     std::vector<JNINativeMethod> methods_;
