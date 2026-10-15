@@ -8,6 +8,7 @@
 
 #include <kolibri/binary/BinaryFormat.h>
 #include <kolibri/binary/BinaryReader.h>
+#include <kolibri/defines.h>
 #include <kolibri/Ref.h>
 
 namespace expo::kolibri::binary {
@@ -18,17 +19,25 @@ namespace expo::kolibri::binary {
   public:
     class [[nodiscard]] Claim {
     public:
-      explicit Claim(BinaryBuffer& buffer = shared());
+      explicit Claim(BinaryBuffer& buffer = shared()) : buffer_(buffer.inUse_ ? nullptr : &buffer) {
+        if (buffer_ != nullptr) {
+          buffer_->inUse_ = true;
+        }
+      }
 
-      ~Claim();
+      ~Claim() {
+        if (buffer_ != nullptr) {
+          buffer_->inUse_ = false;
+        }
+      }
 
       Claim(const Claim&) = delete;
 
       Claim& operator=(const Claim&) = delete;
 
-      explicit operator bool() const;
+      explicit operator bool() const { return buffer_ != nullptr; }
 
-      BinaryBuffer& buffer() const;
+      BinaryBuffer& buffer() const { return *buffer_; }
 
       Reader reader(size_t size = 0) const;
 
@@ -46,20 +55,31 @@ namespace expo::kolibri::binary {
 
     BinaryBuffer& operator=(const BinaryBuffer&) = delete;
 
-    [[nodiscard]] uint8_t* data();
+    [[nodiscard]] uint8_t* data() { return data_.get(); }
 
-    [[nodiscard]] const uint8_t* data() const;
+    [[nodiscard]] const uint8_t* data() const { return data_.get(); }
 
     // TODO(@lukmccall): rename to current position
-    [[nodiscard]] size_t size() const;
+    [[nodiscard]] size_t size() const { return size_; }
 
-    void clear();
+    void clear() { size_ = 0; }
 
-    void setSize(size_t size);
+    void setSize(size_t size) {
+      assert(size <= kBufferCapacity);
+      size_ = size;
+    }
 
-    void require(size_t n) const;
+    void require(const size_t n) const {
+      if (kBufferCapacity - size_ < n) [[unlikely]] {
+        throwOverflow();
+      }
+    }
 
-    void writeBytes(const void* src, size_t n);
+    void writeBytes(const void* src, size_t n) {
+      require(n);
+      std::memcpy(data_.get() + size_, src, n);
+      size_ += n;
+    }
 
     template<typename T>
     void write(T value) requires(std::is_arithmetic_v<T>) {
@@ -72,11 +92,13 @@ namespace expo::kolibri::binary {
       std::memcpy(data_.get() + offset, &value, sizeof(value));
     }
 
-    void writeTag(Tag tag);
+    void writeTag(Tag tag) { write(static_cast<uint8_t>(tag)); }
 
     [[nodiscard]] jobject javaByteBuffer(JNIEnv* env) const;
 
   private:
+    NORETURN NOINLINE COLD static void throwOverflow();
+
     // Deliberately NOT zero-initialized (make_unique_for_overwrite): zeroing would touch every
     // page and make the whole capacity resident up front. Left untouched, the allocation is
     // virtual address space only, and physical pages commit lazily as payloads are written — a
