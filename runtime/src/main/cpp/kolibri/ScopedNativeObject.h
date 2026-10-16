@@ -9,6 +9,10 @@ namespace expo::kolibri {
       void* owner = nullptr;
       void (*invalidate)(void* owner) = nullptr;
       const void* scope = nullptr;
+      // The neighbours in its scope's list, which runs in a ring through the scope's own anchor:
+      // binding and unbinding link and unlink in place, with nothing allocated or looked up.
+      ScopeHook* prev = nullptr;
+      ScopeHook* next = nullptr;
     };
 
     void bindToScope(ScopeHook& hook, const void* scope);

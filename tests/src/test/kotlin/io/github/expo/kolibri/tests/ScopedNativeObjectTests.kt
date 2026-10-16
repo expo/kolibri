@@ -62,4 +62,38 @@ class ScopedNativeObjectTests : NativeTestBase() {
       survivor.destroyNow()
     }
   }
+
+  @Test
+  fun `binding and unbinding anywhere in a scope keeps the rest of it bound`() {
+    val scopeA = 0xE100L
+    val scopeB = 0xE200L
+    val peers = List(64) { ScopedPeer(if (it % 2 == 0) scopeA else scopeB) }
+    // The first, the last and every third one leave their scope before it is invalidated.
+    val leaving = peers.indices.filter { it == 0 || it == peers.lastIndex || it % 3 == 0 }.toSet()
+    val destroyed = leaving.filter { it % 2 == 0 }.toSet()
+    try {
+      for (i in leaving) {
+        if (i in destroyed) peers[i].destroyNow() else peers[i].releaseScopedResources()
+      }
+
+      ScopedPeer.invalidateScope(scopeA)
+      ScopedPeer.invalidateScope(scopeB)
+      for (i in peers.indices) {
+        if (i !in destroyed) assertEquals(1, peers[i].invalidatedCount(), "peer $i")
+      }
+
+      // A scope invalidated once can be bound again, and invalidated again.
+      val again = ScopedPeer(scopeA)
+      try {
+        ScopedPeer.invalidateScope(scopeA)
+        assertEquals(1, again.invalidatedCount())
+      } finally {
+        again.destroyNow()
+      }
+    } finally {
+      for (i in peers.indices) {
+        if (i !in destroyed) peers[i].destroyNow()
+      }
+    }
+  }
 }
