@@ -2,7 +2,6 @@
 
 #include <mutex>
 #include <unordered_map>
-#include <unordered_set>
 
 #include <kolibri/defines.h>
 
@@ -13,17 +12,53 @@ namespace expo::kolibri {
       return mutex;
     }
 
-    std::unordered_map<const void*, std::unordered_set<detail::ScopeHook*>>& scopeMap() {
-      NO_DESTROY static std::unordered_map<const void*, std::unordered_set<detail::ScopeHook*>> map;
-      return map;
+    std::unordered_map<const void*, detail::ScopeHook>& scopeAnchors() {
+      NO_DESTROY static std::unordered_map<const void*, detail::ScopeHook> anchors;
+      return anchors;
+    }
+
+    // The anchor found last: objects bind to the scope they were made in, mostly the same one.
+    const void* lastScope = nullptr;
+    detail::ScopeHook* lastAnchor = nullptr;
+
+    detail::ScopeHook& anchorOf(const void* scope) {
+      if (scope == lastScope && lastAnchor != nullptr) [[likely]] {
+        return *lastAnchor;
+      }
+
+      auto [it, inserted] = scopeAnchors().try_emplace(scope);
+      detail::ScopeHook& anchor = it->second;
+      if (inserted) {
+        anchor.prev = &anchor;
+        anchor.next = &anchor;
+      }
+      lastScope = scope;
+      lastAnchor = &anchor;
+      return anchor;
+    }
+
+    void unlink(detail::ScopeHook& hook) noexcept {
+      hook.prev->next = hook.next;
+      hook.next->prev = hook.prev;
+      hook.prev = nullptr;
+      hook.next = nullptr;
+      hook.scope = nullptr;
     }
   } // namespace
 
   namespace detail {
     void bindToScope(ScopeHook& hook, const void* scope) {
       const std::lock_guard lock(scopeMutex());
+      if (hook.scope != nullptr) {
+        unlink(hook);
+      }
+
+      ScopeHook& anchor = anchorOf(scope);
       hook.scope = scope;
-      scopeMap()[scope].insert(&hook);
+      hook.prev = &anchor;
+      hook.next = anchor.next;
+      anchor.next->prev = &hook;
+      anchor.next = &hook;
     }
 
     void releaseScopedResources(ScopeHook& hook) {
@@ -32,11 +67,8 @@ namespace expo::kolibri {
         return;
       }
 
-      const auto it = scopeMap().find(hook.scope);
-      if (it != scopeMap().end() && it->second.erase(&hook) != 0) {
-        hook.invalidate(hook.owner);
-      }
-      hook.scope = nullptr;
+      unlink(hook);
+      hook.invalidate(hook.owner);
     }
 
     void unbindFromScope(ScopeHook& hook) {
@@ -45,24 +77,28 @@ namespace expo::kolibri {
         return;
       }
 
-      const auto it = scopeMap().find(hook.scope);
-      if (it != scopeMap().end()) {
-        it->second.erase(&hook);
-      }
-      hook.scope = nullptr;
+      unlink(hook);
     }
   } // namespace detail
 
   void invalidateScope(const void* scope) {
     const std::lock_guard lock(scopeMutex());
-    const auto it = scopeMap().find(scope);
-    if (it == scopeMap().end()) {
+    const auto it = scopeAnchors().find(scope);
+    if (it == scopeAnchors().end()) {
       return;
     }
-    for (detail::ScopeHook* hook: it->second) {
-      hook->scope = nullptr;
-      hook->invalidate(hook->owner);
+
+    const detail::ScopeHook& anchor = it->second;
+    while (anchor.next != &anchor) {
+      detail::ScopeHook& hook = *anchor.next;
+      unlink(hook);
+      hook.invalidate(hook.owner);
     }
-    scopeMap().erase(it);
+
+    if (lastScope == scope) {
+      lastScope = nullptr;
+      lastAnchor = nullptr;
+    }
+    scopeAnchors().erase(it);
   }
 } // namespace expo::kolibri

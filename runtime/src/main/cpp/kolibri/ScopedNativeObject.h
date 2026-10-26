@@ -9,6 +9,9 @@ namespace expo::kolibri {
       void* owner = nullptr;
       void (*invalidate)(void* owner) = nullptr;
       const void* scope = nullptr;
+
+      ScopeHook* prev = nullptr;
+      ScopeHook* next = nullptr;
     };
 
     void bindToScope(ScopeHook& hook, const void* scope);
