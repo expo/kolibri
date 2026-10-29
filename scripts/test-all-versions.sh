@@ -24,7 +24,7 @@ failed=()
 for version in "${versions[@]}"; do
   printf 'Kotlin %-8s ' "$version"
   if ./gradlew :compiler-plugin:test :gradle-plugin:build :runtime:test :tests:test \
-      -PkotlinVersion="$version" --continue > "$log_dir/$version.log" 2>&1; then
+      -PkotlinVersion="$version" --configure-on-demand --parallel --continue > "$log_dir/$version.log" 2>&1; then
     echo "PASS"
     rm -f "$log_dir/$version.log"
   else
