@@ -1,6 +1,13 @@
 [versions]
 kolibri = "0.2.4"
 
+# The compiler plugin keeps the version of the Kolibri release that last changed it, so a release
+# that does not change it publishes none of its per-Kotlin builds (every file counts against Maven
+# Central's per-organization limit). Set it to the new release's version whenever the plugin's
+# output changes: the publish workflow fails a release whose plugin differs from what Central holds
+# under this version.
+compiler-plugin = "0.2.4"
+
 # https://github.com/JetBrains/kotlin
 # The oldest supported release. Every release in gradle/kotlin-versions.txt is built and tested;
 # `-PkotlinVersion=<version>` overrides this one for the whole build (see settings.gradle.kts).

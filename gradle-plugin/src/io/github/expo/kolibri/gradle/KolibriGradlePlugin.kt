@@ -51,13 +51,14 @@ class KolibriGradlePlugin : KotlinCompilerPluginSupportPlugin {
   override fun getCompilerPluginId(): String = BuildConfig.KOTLIN_PLUGIN_ID
 
   // A compiler plugin is bound to the exact compiler it was built against, so Kolibri publishes one
-  // compiler-plugin artifact per supported Kotlin release, versioned `<kolibri>-<kotlin>`. Resolving
-  // by the project's own Kotlin version keeps the consumer's `plugins {}` block Kotlin-agnostic; a
-  // Kotlin release Kolibri has no build for fails resolution with the missing coordinates.
+  // compiler-plugin artifact per supported Kotlin release, versioned `<compiler-plugin>-<kotlin>`
+  // (the compiler plugin's own version, see gradle/libs.versions.toml). Resolving by the project's
+  // own Kotlin version keeps the consumer's `plugins {}` block Kotlin-agnostic; a Kotlin release
+  // Kolibri has no build for fails resolution with the missing coordinates.
   override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
     groupId = BuildConfig.KOTLIN_PLUGIN_GROUP,
     artifactId = BuildConfig.KOTLIN_PLUGIN_NAME,
-    version = "${BuildConfig.KOLIBRI_VERSION}-${project.getKotlinPluginVersion()}",
+    version = "${BuildConfig.KOTLIN_PLUGIN_VERSION}-${project.getKotlinPluginVersion()}",
   )
 
   override fun applyToCompilation(

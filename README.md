@@ -56,10 +56,11 @@ class Counter(pointer: NativePointer) : NativeObject(pointer) {
 
 A Kotlin compiler plugin is bound to the exact compiler it was built against, so Kolibri builds and
 publishes its compiler plugin once per Kotlin release, as
-`io.github.expo.kolibri:compiler-plugin:<kolibri>-<kotlin>` (for example `0.1.9-2.3.20`). The Gradle
-plugin picks the build that matches your project's Kotlin, so nothing in your build refers to it
-directly. The `runtime` jar, the `kolibri-android` AAR and the Gradle plugin itself are the same for
-every release.
+`io.github.expo.kolibri:compiler-plugin:<compiler-plugin>-<kotlin>` (for example `0.2.4-2.3.20`).
+The compiler plugin keeps the version of the Kolibri release that last changed it, so it can be
+older than the rest of Kolibri. The Gradle plugin picks the build that matches your project's
+Kotlin, so nothing in your build refers to it directly. The `runtime` jar, the `kolibri-android` AAR
+and the Gradle plugin itself are the same for every release.
 
 Every release in [`gradle/kotlin-versions.txt`](gradle/kotlin-versions.txt) is built and tested on
 CI: 2.2.0, 2.2.10, 2.2.20, 2.2.21, 2.3.0, 2.3.10, 2.3.20, 2.3.21, 2.4.0, 2.4.10 and 2.4.20. A Kotlin

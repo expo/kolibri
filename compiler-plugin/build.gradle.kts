@@ -30,7 +30,9 @@ mavenPublishing {
 val kotlinVersionString: String = libs.versions.kotlin.get()
 val kotlinVersion: KotlinVersion = parseKotlinVersion(kotlinVersionString)
 
-version = "${libs.versions.kolibri.get()}-$kotlinVersionString"
+// Versioned apart from the rest of Kolibri (see gradle/libs.versions.toml), so an unchanged plugin
+// is not published again.
+version = "${libs.versions.compiler.plugin.get()}-$kotlinVersionString"
 
 val compatSourceDirs: List<File> = compatSourceDirsFor(layout.projectDirectory.dir("compat").asFile, kotlinVersion)
 val testFixturesCompatSourceDirs: List<File> =
