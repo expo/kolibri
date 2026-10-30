@@ -1,5 +1,7 @@
 package io.github.expo.kolibri.tests
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -13,6 +15,9 @@ class MemberTests : NativeTestBase() {
   private external fun nativeBoxedPrimitives(): Boolean
   private external fun nativeBoxAndUnbox(): Boolean
   private external fun nativeTypedUnbox(): Boolean
+  private external fun nativeBoxCacheMatchesValueOf(): Boolean
+  private external fun nativeUnboxReadsEveryValue(): Boolean
+  private external fun nativeTypedUnboxOfNullThrows(): Boolean
   private external fun nativeSumIntegerList(values: List<Int>): Int
 
   @Test
@@ -56,6 +61,37 @@ class MemberTests : NativeTestBase() {
   @Test
   fun `typed unbox reads primitives straight from typed refs`() {
     assertTrue(nativeTypedUnbox())
+  }
+
+  @Test
+  fun `box hands out Java's own cached boxes and the right value for every other one`() {
+    assertTrue(nativeBoxCacheMatchesValueOf())
+  }
+
+  @Test
+  fun `box caches fill correctly when many threads box at once`() {
+    val failures = ConcurrentLinkedQueue<Throwable>()
+    val threads = List(8) {
+      thread {
+        try {
+          repeat(20) { assertTrue(nativeBoxCacheMatchesValueOf()) }
+        } catch (failure: Throwable) {
+          failures.add(failure)
+        }
+      }
+    }
+    threads.forEach { it.join() }
+    failures.firstOrNull()?.let { throw it }
+  }
+
+  @Test
+  fun `unbox reads extremes and special values exactly`() {
+    assertTrue(nativeUnboxReadsEveryValue())
+  }
+
+  @Test
+  fun `typed unbox of a null ref throws instead of crashing`() {
+    assertTrue(nativeTypedUnboxOfNullThrows())
   }
 
   @Test
