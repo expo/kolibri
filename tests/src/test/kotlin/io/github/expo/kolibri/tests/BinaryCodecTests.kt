@@ -18,6 +18,30 @@ class BinaryCodecTests : NativeTestBase() {
   private external fun nativeClaimSemantics(): Boolean
   private external fun nativeCppRoundTrips(): Boolean
   private external fun nativeOverflowReturnsFalse(): Boolean
+  private external fun nativeBoolRuns(): Boolean
+  private external fun nativeScalarRuns(): Boolean
+  private external fun nativeStringForms(): Boolean
+  private external fun nativeInPlaceDecoding(): Boolean
+
+  @Test
+  fun `containers decode their strings and optionals in place without changing results`() {
+    assertTrue(nativeInPlaceDecoding())
+  }
+
+  @Test
+  fun `bool lists keep one byte per element and round-trip at every size`() {
+    assertTrue(nativeBoolRuns())
+  }
+
+  @Test
+  fun `scalar lists decode bit for bit from any alignment`() {
+    assertTrue(nativeScalarRuns())
+  }
+
+  @Test
+  fun `strings pick the right form and round-trip at any alignment`() {
+    assertTrue(nativeStringForms())
+  }
 
   @Test
   fun `a Kotlin-encoded payload decodes correctly in C++`() {
