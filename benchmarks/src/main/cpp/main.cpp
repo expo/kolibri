@@ -23,10 +23,14 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  // The benchmarks' own Java classes (see CMakeLists.txt), next to the JDK's.
+  JavaVMOption options[] = {
+    {const_cast<char*>("-Djava.class.path=" KOLIBRI_BENCHMARK_CLASS_PATH), nullptr},
+  };
   JavaVMInitArgs vmArgs{};
   vmArgs.version = JNI_VERSION_1_6;
-  vmArgs.nOptions = 0;
-  vmArgs.options = nullptr;
+  vmArgs.nOptions = 1;
+  vmArgs.options = options;
   vmArgs.ignoreUnrecognized = JNI_FALSE;
 
   JavaVM* vm = nullptr;
