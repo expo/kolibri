@@ -37,10 +37,6 @@ namespace expo::kolibri::binary {
   }
 
   std::string Reader::readString() {
-    return readAdaptiveString(
-      *this,
-      [](const char* bytes, size_t length) { return std::string{bytes, length}; },
-      [](const char16_t* units, size_t count) { return utf16ToUtf8(units, count); }
-    );
+    return binary::readString(*this);
   }
 }

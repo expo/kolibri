@@ -75,10 +75,16 @@ namespace expo::kolibri::binary {
       }
     }
 
-    void writeBytes(const void* src, size_t n) {
+    /** Claims the next `n` bytes for the caller to fill and returns where they start. */
+    [[nodiscard]] uint8_t* advance(const size_t n) {
       require(n);
-      std::memcpy(data_.get() + size_, src, n);
+      uint8_t* at = data_.get() + size_;
       size_ += n;
+      return at;
+    }
+
+    void writeBytes(const void* src, size_t n) {
+      std::memcpy(advance(n), src, n);
     }
 
     template<typename T>
