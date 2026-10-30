@@ -13,6 +13,8 @@ class StringTests : NativeTestBase() {
 
   private external fun nativeUtf8Conversions(): Boolean
   private external fun nativeEmptyStringIsNotNull(): Boolean
+  private external fun nativeConversionsMatchReference(): Boolean
+  private external fun nativeToJStringChecksEveryByte(): Boolean
 
   private fun assertRoundTrips(value: String) {
     assertEquals(value, nativeRoundTripUtf8(value), "UTF-8 round trip")
@@ -48,15 +50,57 @@ class StringTests : NativeTestBase() {
 
   @Test
   fun `lengths around the stack-buffer threshold round-trip`() {
-    // Non-ASCII payload so the UTF-8 arm actually transcodes on both sides of the boundary.
+    // Non-ASCII payload so the UTF-8 arm actually transcodes on both sides of the boundary; ASCII
+    // and mixed text take the word-at-a-time paths, the mixed one in and out of ASCII runs.
     for (length in intArrayOf(STACK_UNITS - 1, STACK_UNITS, STACK_UNITS + 1, 4 * STACK_UNITS)) {
       assertRoundTrips("ż".repeat(length))
+      assertRoundTrips("a".repeat(length))
+      assertRoundTrips("Zażółć gęślą jaźń, the quick brown fox 😀 ".repeat(length).take(length))
     }
   }
 
   @Test
   fun `C++ level utf8 and utf16 conversion units behave`() {
     assertTrue(nativeUtf8Conversions())
+  }
+
+  @Test
+  fun `the fast conversion paths agree with a reference conversion on every input shape`() {
+    assertTrue(nativeConversionsMatchReference())
+  }
+
+  @Test
+  fun `toJString notices a NUL or non-ASCII byte at any position`() {
+    assertTrue(nativeToJStringChecksEveryByte())
+  }
+
+  @Test
+  fun `text around the 64-unit ASCII block boundary round-trips`() {
+    // The UTF-16 -> UTF-8 conversion copies ASCII in 64-unit blocks; strings up to 64 units that
+    // are not all ASCII take a separate one-pass path.
+    for (run in intArrayOf(0, 1, 62, 63, 64, 65, 127, 128, 129)) {
+      val ascii = "a".repeat(run)
+      assertRoundTrips(ascii)
+      assertRoundTrips(ascii + "é")
+      assertRoundTrips(ascii + "😀" + "b".repeat(70))
+      assertRoundTrips("é" + ascii)
+      assertRoundTrips(ascii + "\uD800")
+    }
+    // A surrogate pair split across the end of the first block.
+    assertRoundTrips("a".repeat(63) + "😀" + "a".repeat(10))
+    // The one-pass path's buffer holds 3 bytes per unit: fill it exactly, and go one past.
+    for (count in intArrayOf(63, 64, 65)) {
+      assertRoundTrips("日".repeat(count))
+    }
+    assertRoundTrips("😀".repeat(32))
+    assertRoundTrips("😀".repeat(33))
+  }
+
+  @Test
+  fun `NUL inside otherwise ASCII text round-trips at any position`() {
+    for (at in 0 until 20) {
+      assertRoundTrips(buildString { repeat(20) { append(if (it == at) '\u0000' else 'x') } })
+    }
   }
 
   @Test
