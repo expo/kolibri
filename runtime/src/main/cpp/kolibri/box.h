@@ -132,6 +132,17 @@ namespace expo::kolibri {
       return value >= -128 && value <= 127;
     }
 
+#ifdef __ANDROID__
+    // On Android, xxxValue() is always called. ART treats the wrappers' private `value` fields as
+    // non-SDK interfaces that aren't on any allow list. Since Android 9, apps can't look them up
+    // (GetFieldID throws NoSuchFieldError), and each lookup logs an "Accessing hidden field"
+    // warning and reports a StrictMode NonSdkApiUsedViolation, which crashes apps that use
+    // penaltyDeath(). So don't try.
+    template<typename Box, auto GetField, typename ValueMethod>
+    auto unboxValue(JNIEnv* env, const jobject boxed, const ValueMethod valueMethod) {
+      return valueMethod(env, boxed);
+    }
+#else
     // The wrapper's private `value` field, read directly instead of calling xxxValue() in Java.
     // The wrappers are final, so nothing can override xxxValue(), and JNI field access ignores
     // Java access checks. Null if the VM has no such field: then the method is called instead.
@@ -154,6 +165,7 @@ namespace expo::kolibri {
       // The method also reports a null receiver, as before.
       return valueMethod(env, boxed);
     }
+#endif
   } // namespace detail
 
   /**
