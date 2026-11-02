@@ -59,6 +59,28 @@ else ()
 endif ()
 get_filename_component(KOLIBRI_JVM_LIBRARY_DIR ${KOLIBRI_JVM_LIBRARY} DIRECTORY)
 
+# --- Java side ---------------------------------------------------------------------------------
+# native_call_benchmarks.cpp measures Java -> native calls, so it needs a Java class to make them
+# from: plain Java (no Kotlin, nothing from the Gradle build), compiled here and put on the class
+# path of the JVM main.cpp creates.
+if (DEFINED JAVA_HOME)
+  find_program(KOLIBRI_JAVAC javac PATHS ${JAVA_HOME}/bin NO_DEFAULT_PATH REQUIRED)
+else ()
+  find_package(Java REQUIRED COMPONENTS Development)
+  set(KOLIBRI_JAVAC ${Java_JAVAC_EXECUTABLE})
+endif ()
+file(GLOB_RECURSE BENCHMARK_JAVA_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/../java/*.java")
+set(BENCHMARK_CLASSES_DIR "${CMAKE_CURRENT_BINARY_DIR}/classes")
+set(BENCHMARK_CLASSES_STAMP "${CMAKE_CURRENT_BINARY_DIR}/classes.stamp")
+add_custom_command(
+        OUTPUT ${BENCHMARK_CLASSES_STAMP}
+        COMMAND ${KOLIBRI_JAVAC} -d ${BENCHMARK_CLASSES_DIR} ${BENCHMARK_JAVA_SOURCES}
+        COMMAND ${CMAKE_COMMAND} -E touch ${BENCHMARK_CLASSES_STAMP}
+        DEPENDS ${BENCHMARK_JAVA_SOURCES}
+        COMMENT "Compiling the benchmarks' Java classes"
+)
+add_custom_target(kolibri-benchmark-classes DEPENDS ${BENCHMARK_CLASSES_STAMP})
+
 # --- Benchmarks ----------------------------------------------------------------------------------
 # One executable for every *.cpp here. main.cpp starts the JVM, then hands over to the library's
 # runner, so all the --benchmark_* flags work as usual.
@@ -68,3 +90,7 @@ add_executable(kolibri-benchmarks ${BENCHMARK_SOURCES})
 target_compile_options(kolibri-benchmarks PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_link_libraries(kolibri-benchmarks PRIVATE kolibri benchmark::benchmark ${KOLIBRI_JVM_LIBRARY})
 set_target_properties(kolibri-benchmarks PROPERTIES BUILD_RPATH ${KOLIBRI_JVM_LIBRARY_DIR})
+add_dependencies(kolibri-benchmarks kolibri-benchmark-classes)
+target_compile_definitions(kolibri-benchmarks PRIVATE
+        KOLIBRI_BENCHMARK_CLASS_PATH="${BENCHMARK_CLASSES_DIR}"
+)

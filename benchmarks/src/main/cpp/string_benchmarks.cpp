@@ -22,10 +22,12 @@ namespace expo::kolibri::benchmarks {
       std::string_view pattern;
     };
 
-    constexpr std::array<TextKind, 3> kTextKinds{{
+    constexpr std::array<TextKind, 4> kTextKinds{{
       {"ascii", "The quick brown fox jumps over the lazy dog. "},
       {"latin", "Zażółć gęślą jaźń, déjà vu. "},
       {"cjk", "日本語のテキスト、中文文本。"},
+      // Words of two-byte sequences between ASCII spaces and punctuation.
+      {"cyrillic", "Съешь же ещё этих мягких французских булок. "},
     }};
 
     const TextKind& textKind(const benchmark::State& state) {
@@ -147,7 +149,7 @@ namespace expo::kolibri::benchmarks {
     }
 
     void textArgs(benchmark::Benchmark* benchmark) {
-      benchmark->ArgNames({"bytes", "kind"})->ArgsProduct({{16, 256, 4096}, {0, 1, 2}});
+      benchmark->ArgNames({"bytes", "kind"})->ArgsProduct({{16, 256, 4096}, {0, 1, 2, 3}});
     }
   } // namespace
 

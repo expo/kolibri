@@ -42,12 +42,15 @@ namespace expo::kolibri::benchmarks {
     }
 
     // Every other element is absent, so both presence branches are taken.
-    std::vector<std::optional<std::string>> makeOptionalStrings(size_t count) {
+    std::vector<std::optional<std::string>> makeOptionalStrings(
+      size_t count,
+      const std::string& base = "value-"
+    ) {
       std::vector<std::optional<std::string>> values;
       values.reserve(count);
       for (size_t i = 0; i < count; i++) {
         if (i % 2 == 0) {
-          values.emplace_back("value-" + std::to_string(i));
+          values.emplace_back(base + std::to_string(i));
         } else {
           values.emplace_back(std::nullopt);
         }
@@ -143,6 +146,16 @@ namespace expo::kolibri::benchmarks {
       decode(state, makeOptionalStrings(static_cast<size_t>(state.range(0))));
     }
 
+    // UTF-16 payloads behind a one-byte presence marker: the units land at odd offsets, so the
+    // decoder realigns every string before converting it.
+    void BM_EncodeOptionalUtf8Strings(benchmark::State& state) {
+      encode(state, makeOptionalStrings(static_cast<size_t>(state.range(0)), "caf\xC3\xA9-"));
+    }
+
+    void BM_DecodeOptionalUtf8Strings(benchmark::State& state) {
+      decode(state, makeOptionalStrings(static_cast<size_t>(state.range(0)), "caf\xC3\xA9-"));
+    }
+
     void BM_EncodeNestedIntRows(benchmark::State& state) {
       encode(state, makeRows(static_cast<size_t>(state.range(0))));
     }
@@ -188,6 +201,8 @@ namespace expo::kolibri::benchmarks {
   BENCHMARK(BM_DecodeBytes)->RangeMultiplier(8)->Range(8, 128 << 10);
   BENCHMARK(BM_EncodeOptionalStrings)->RangeMultiplier(8)->Range(8, 4 << 10);
   BENCHMARK(BM_DecodeOptionalStrings)->RangeMultiplier(8)->Range(8, 4 << 10);
+  BENCHMARK(BM_EncodeOptionalUtf8Strings)->RangeMultiplier(8)->Range(8, 4 << 10);
+  BENCHMARK(BM_DecodeOptionalUtf8Strings)->RangeMultiplier(8)->Range(8, 4 << 10);
   // 16 ints per row: 1024 rows is ~68 KiB.
   BENCHMARK(BM_EncodeNestedIntRows)->RangeMultiplier(8)->Range(8, 1 << 10);
   BENCHMARK(BM_DecodeNestedIntRows)->RangeMultiplier(8)->Range(8, 1 << 10);
