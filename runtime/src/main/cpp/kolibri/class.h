@@ -34,6 +34,14 @@ namespace expo::kolibri {
     };
   };
 
+  struct JThrowable : JavaClass<JThrowable> {
+    static constexpr std::string_view descriptor = "java/lang/Throwable";
+  };
+
+  struct JRuntimeException : JavaClass<JRuntimeException, JThrowable> {
+    static constexpr std::string_view descriptor = "java/lang/RuntimeException";
+  };
+
   struct JByteBuffer : JavaClass<JByteBuffer> {
     static constexpr std::string_view descriptor = "java/nio/ByteBuffer";
   };
