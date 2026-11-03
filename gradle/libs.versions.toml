@@ -1,5 +1,5 @@
 [versions]
-kolibri = "0.2.4"
+kolibri = "0.2.5"
 
 # The compiler plugin keeps the version of the Kolibri release that last changed it, so a release
 # that does not change it publishes none of its per-Kotlin builds (every file counts against Maven
