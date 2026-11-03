@@ -1,3 +1,8 @@
+#include <bit>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
 #include <string>
 #include <variant>
 
@@ -143,6 +148,93 @@ namespace expo::kolibri::tests {
       return JNI_TRUE;
     }
 
+    // box() hands out references to the objects valueOf returned for -128..127 (and TRUE /
+    // FALSE) instead of calling it each time; every value, inside the range and out, must still
+    // box to the right one.
+    jboolean boxCacheMatchesValueOf(JNIEnv* env) {
+      for (jint value = -130; value <= 130; value++) {
+        const auto boxed = Ref<JInteger>::adopt(env, box(env, value));
+        const jint unboxed = unbox(env, boxed);
+        KOLIBRI_EXPECT_EQ(unboxed, value);
+        if (value >= -128 && value <= 127) {
+          // Integer.valueOf is specified to return the one cached object for these.
+          KOLIBRI_EXPECT(env->IsSameObject(boxed, JInteger::valueOf(env, value)));
+        }
+
+        const jlong unboxedLong = unbox(env, Ref<JLong>::adopt(env, box(env, jlong{value})));
+        KOLIBRI_EXPECT_EQ(unboxedLong, jlong{value});
+      }
+      for (const jint value: {std::numeric_limits<jint>::min(), std::numeric_limits<jint>::max()}) {
+        const jint unboxed = unbox(env, Ref<JInteger>::adopt(env, box(env, value)));
+        KOLIBRI_EXPECT_EQ(unboxed, value);
+      }
+      for (const jlong value: {std::numeric_limits<jlong>::min(), std::numeric_limits<jlong>::max()}) {
+        const jlong unboxed = unbox(env, Ref<JLong>::adopt(env, box(env, value)));
+        KOLIBRI_EXPECT_EQ(unboxed, value);
+      }
+
+      const auto boxedTrue = Ref<JBoolean>::adopt(env, box(env, true));
+      const auto boxedFalse = Ref<JBoolean>::adopt(env, box(env, false));
+      KOLIBRI_EXPECT(env->IsSameObject(boxedTrue, JBoolean::valueOf(env, jboolean{JNI_TRUE})));
+      KOLIBRI_EXPECT(env->IsSameObject(boxedFalse, JBoolean::valueOf(env, jboolean{JNI_FALSE})));
+      // Any non-zero jboolean is true, as it was for Boolean.valueOf.
+      const auto boxedTwo = Ref<JBoolean>::adopt(env, box(env, jboolean{2}));
+      KOLIBRI_EXPECT(env->IsSameObject(boxedTwo, boxedTrue));
+      KOLIBRI_EXPECT(unbox(env, boxedTrue) == JNI_TRUE);
+      KOLIBRI_EXPECT(unbox(env, boxedFalse) == JNI_FALSE);
+
+      // Each call returns its own local reference, which the caller may delete.
+      jobject first = box(env, 5);
+      jobject second = box(env, 5);
+      KOLIBRI_EXPECT(env->IsSameObject(first, second));
+      env->DeleteLocalRef(first);
+      const jint unboxedSecond = unbox(env, UnownedRef<JInteger>(second));
+      KOLIBRI_EXPECT_EQ(unboxedSecond, 5);
+      env->DeleteLocalRef(second);
+      return JNI_TRUE;
+    }
+
+    // unbox() reads the wrappers' value fields directly; extremes and special values have to come
+    // through bit for bit, through both the typed and untyped forms.
+    jboolean unboxReadsEveryValue(JNIEnv* env) {
+      using Doubles = std::numeric_limits<jdouble>;
+      using Floats = std::numeric_limits<jfloat>;
+      for (const jdouble value: {0.0, -0.0, Doubles::infinity(), -Doubles::infinity(),
+                                 Doubles::denorm_min(), Doubles::max(), Doubles::lowest()}) {
+        const auto boxed = JDouble::valueOf(env, value);
+        KOLIBRI_EXPECT(std::bit_cast<uint64_t>(unbox(env, boxed)) == std::bit_cast<uint64_t>(value));
+        const Boxed untyped = unbox(env, boxed.get());
+        KOLIBRI_EXPECT(std::bit_cast<uint64_t>(std::get<jdouble>(untyped)) == std::bit_cast<uint64_t>(value));
+      }
+      KOLIBRI_EXPECT(std::isnan(unbox(env, JDouble::valueOf(env, Doubles::quiet_NaN()))));
+      for (const jfloat value: {0.0f, -0.0f, Floats::infinity(), Floats::denorm_min(), Floats::max()}) {
+        const auto boxed = JFloat::valueOf(env, value);
+        KOLIBRI_EXPECT(std::bit_cast<uint32_t>(unbox(env, boxed)) == std::bit_cast<uint32_t>(value));
+        const Boxed untyped = unbox(env, boxed.get());
+        KOLIBRI_EXPECT(std::bit_cast<uint32_t>(std::get<jfloat>(untyped)) == std::bit_cast<uint32_t>(value));
+      }
+      KOLIBRI_EXPECT(std::isnan(unbox(env, JFloat::valueOf(env, Floats::quiet_NaN()))));
+      const Boxed longMin = unbox(env, JLong::valueOf(env, std::numeric_limits<jlong>::min()).get());
+      KOLIBRI_EXPECT_EQ(std::get<jlong>(longMin), std::numeric_limits<jlong>::min());
+      const Boxed intMin = unbox(env, JInteger::valueOf(env, std::numeric_limits<jint>::min()).get());
+      KOLIBRI_EXPECT_EQ(std::get<jint>(intMin), std::numeric_limits<jint>::min());
+      return JNI_TRUE;
+    }
+
+    // A typed unbox of a null ref reports it, as the xxxValue() call it replaced did, rather than
+    // reading a field off null.
+    jboolean typedUnboxOfNullThrows(JNIEnv* env) {
+      bool threw = false;
+      try {
+        (void) unbox(env, Ref<JInteger>{});
+      } catch (const std::runtime_error&) {
+        threw = true;
+      }
+      KOLIBRI_EXPECT(threw);
+      KOLIBRI_EXPECT(!env->ExceptionCheck());
+      return JNI_TRUE;
+    }
+
     jint sumIntegerList(JNIEnv* env, UnownedRef<JList> values) {
       KOLIBRI_EXPECT_EQ(values->size(env), 3);
       jint sum = 0;
@@ -165,6 +257,9 @@ namespace expo::kolibri::tests {
       .method<&boxedPrimitives>("nativeBoxedPrimitives")
       .method<&boxAndUnbox>("nativeBoxAndUnbox")
       .method<&typedUnbox>("nativeTypedUnbox")
+      .method<&boxCacheMatchesValueOf>("nativeBoxCacheMatchesValueOf")
+      .method<&unboxReadsEveryValue>("nativeUnboxReadsEveryValue")
+      .method<&typedUnboxOfNullThrows>("nativeTypedUnboxOfNullThrows")
       .method<&sumIntegerList>("nativeSumIntegerList")
       .commit();
   }
