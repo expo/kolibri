@@ -1,5 +1,7 @@
 package io.github.expo.kolibri.tests
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -43,6 +45,29 @@ class ExceptionTests : NativeTestBase() {
     val message = error.message!!
     assertTrue("while testing" in message, "expected the C++ context in: $message")
     assertTrue("pending failure" in message, "expected the pending message in: $message")
+  }
+
+  @Test
+  fun `exception conversions keep their messages when repeated from many threads at once`() {
+    // Both directions look their Java members up once and cache them for the process; every
+    // later conversion, on any thread, has to produce the same exception and message.
+    val failures = ConcurrentLinkedQueue<Throwable>()
+    val threads = List(8) { index ->
+      thread {
+        try {
+          repeat(200) { round ->
+            val message = "thread $index round $round"
+            val error = assertFailsWith<RuntimeException> { nativeThrowRuntimeDirect(message) }
+            assertEquals(message, error.message)
+            assertTrue(nativeRethrowFromCallback())
+          }
+        } catch (failure: Throwable) {
+          failures.add(failure)
+        }
+      }
+    }
+    threads.forEach { it.join() }
+    failures.firstOrNull()?.let { throw it }
   }
 
   companion object {

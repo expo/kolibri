@@ -34,6 +34,20 @@ namespace expo::kolibri {
     };
   };
 
+  struct JThrowable : JavaClass<JThrowable> {
+    static constexpr std::string_view descriptor = "java/lang/Throwable";
+    // noexcept: it runs while a pending exception is being converted, so the caller checks.
+    static constexpr Method<"toString", Ref<JString>() noexcept> toString{};
+
+    struct Accessors : BaseAccessors {
+      JAVA_FORWARD_ACCESSOR(toString)
+    };
+  };
+
+  struct JRuntimeException : JavaClass<JRuntimeException, JThrowable> {
+    static constexpr std::string_view descriptor = "java/lang/RuntimeException";
+  };
+
   struct JByteBuffer : JavaClass<JByteBuffer> {
     static constexpr std::string_view descriptor = "java/nio/ByteBuffer";
   };
