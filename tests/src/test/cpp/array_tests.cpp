@@ -109,6 +109,11 @@ namespace expo::kolibri::tests {
       return JNI_TRUE;
     }
 
+    jint pinNull(JNIEnv* env, jintArray values) {
+      PinnedArray<jint> pinned(env, values);
+      return pinned.size();
+    }
+
     // `values` is 0..9: a 4-element chunk size gives two full chunks and a 2-element tail.
     jboolean chunkedRead(JNIEnv* env, jintArray values) {
       const UnownedRef<JIntArray> array{values};
@@ -270,6 +275,7 @@ namespace expo::kolibri::tests {
       .method<&sumDoubles>("nativeSumDoubleArray")
       .method<&countTrue>("nativeCountTrue")
       .method<&regionRoundTrip>("nativeRegionRoundTrip")
+      .method<&pinNull>("nativePinNull")
       .method<&pinMutate>("nativePinMutate")
       .method<&chunkedRead>("nativeChunkedRead")
       .method<&chunkedSumDoubles>("nativeChunkedSumDoubles")
