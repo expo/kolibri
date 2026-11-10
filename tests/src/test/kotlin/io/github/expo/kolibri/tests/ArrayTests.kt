@@ -3,6 +3,7 @@ package io.github.expo.kolibri.tests
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -22,6 +23,7 @@ class ArrayTests : NativeTestBase() {
 
   private external fun nativeRegionRoundTrip(values: IntArray): Boolean
   private external fun nativePinMutate(values: IntArray): Boolean
+  private external fun nativePinNull(values: IntArray?): Int
   private external fun nativeChunkedRead(values: IntArray): Boolean
   private external fun nativeChunkedSumDoubles(values: DoubleArray): Double
   private external fun nativeFillByChunk(values: IntArray): Boolean
@@ -112,5 +114,11 @@ class ArrayTests : NativeTestBase() {
     assertContentEquals(arrayOf("first", null, "third"), values)
     assertEquals("first,third", nativeJoinStringArray(arrayOf("first", null, "third")))
     assertNull(values[1])
+  }
+
+  @Test
+  fun `pinning a null array throws instead of crashing`() {
+    val error = assertFailsWith<RuntimeException> { nativePinNull(null) }
+    assertEquals("Cannot pin a null Java array", error.message)
   }
 }

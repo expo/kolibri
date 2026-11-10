@@ -205,12 +205,16 @@ namespace expo::kolibri {
     static constexpr bool ReadOnly = std::is_const_v<Element>;
 
     PinnedArray(JNIEnv* env, JniType array)
-      : env_(env),
-        array_(static_cast<JniType>(env->NewLocalRef(array))),
-        size_(env->GetArrayLength(array)) {
+      : env_(env), array_(nullptr), elements_(nullptr), size_(0) {
+      // Checked before any JNI call: GetArrayLength on a null array crashes the process.
+      if (array == nullptr) [[unlikely]] {
+        throw std::invalid_argument("Cannot pin a null Java array");
+      }
+      array_ = static_cast<JniType>(env->NewLocalRef(array));
       if (array_ == nullptr) {
         throwWithPending(env, "Could not reference a Java array for pinning");
       }
+      size_ = env->GetArrayLength(array_);
       elements_ = (env->*Traits::getElements)(array_, nullptr);
       if (elements_ == nullptr && size_ != 0) {
         env->DeleteLocalRef(array_);
