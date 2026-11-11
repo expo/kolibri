@@ -30,6 +30,22 @@ namespace expo::kolibri::benchmarks {
       }
     }
 
+    void BM_BoxLong(benchmark::State& state) {
+      JNIEnv* env = getEnv();
+      for (auto _: state) {
+        const auto boxed = Ref<>::adopt(env, box(env, jlong{42}));
+        benchmark::DoNotOptimize(boxed.get());
+      }
+    }
+
+    void BM_BoxBoolean(benchmark::State& state) {
+      JNIEnv* env = getEnv();
+      for (auto _: state) {
+        const auto boxed = Ref<>::adopt(env, box(env, true));
+        benchmark::DoNotOptimize(boxed.get());
+      }
+    }
+
     void BM_BoxDouble(benchmark::State& state) {
       JNIEnv* env = getEnv();
       for (auto _: state) {
@@ -75,6 +91,8 @@ namespace expo::kolibri::benchmarks {
 
   BENCHMARK(BM_BoxInt)->MinWarmUpTime(kJitWarmUpSeconds);
   BENCHMARK(BM_BoxIntUncached)->MinWarmUpTime(kJitWarmUpSeconds);
+  BENCHMARK(BM_BoxLong)->MinWarmUpTime(kJitWarmUpSeconds);
+  BENCHMARK(BM_BoxBoolean)->MinWarmUpTime(kJitWarmUpSeconds);
   BENCHMARK(BM_BoxDouble)->MinWarmUpTime(kJitWarmUpSeconds);
   BENCHMARK(BM_UnboxUntypedInt)->MinWarmUpTime(kJitWarmUpSeconds);
   BENCHMARK(BM_UnboxUntypedLong)->MinWarmUpTime(kJitWarmUpSeconds);
