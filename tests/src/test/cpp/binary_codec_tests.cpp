@@ -169,6 +169,48 @@ namespace expo::kolibri::tests {
       return JNI_TRUE;
     }
 
+    // A non-ASCII string round-trips at every alignment, through both the stack scratch and the
+    // heap scratch (longer than kStackUnits), and when it ends a few bytes before the capacity:
+    // less room than the worst case (two bytes per UTF-8 byte), enough for its real units.
+    jboolean nonAsciiStringLayouts(JNIEnv*) {
+      BinaryBuffer& buffer = BinaryBuffer::shared();
+      // "zażółć 🦆": 15 UTF-8 bytes, 9 UTF-16 units (one surrogate pair).
+      const std::string shortText("za\xC5\xBC\xC3\xB3\xC5\x82\xC4\x87 \xF0\x9F\xA6\x86");
+      std::string longText;
+      while (longText.size() < kStackUnits * 3) {
+        longText += shortText;
+      }
+
+      const std::string* texts[] = {&shortText, &longText};
+      for (const std::string* text: texts) {
+        for (size_t lead = 0; lead < 4; lead++) {
+          buffer.clear();
+          for (size_t i = 0; i < lead; i++) {
+            buffer.write<uint8_t>(0xAB);
+          }
+          writeString(buffer, *text);
+          Reader in{buffer.data(), buffer.data() + buffer.size()};
+          static_cast<void>(in.readBytes(lead));
+          const size_t units = text == &shortText ? 9 : longText.size() / 15 * 9;
+          KOLIBRI_EXPECT_EQ(in.read<int32_t>(), -static_cast<int32_t>(units));
+          in.position -= sizeof(int32_t);
+          KOLIBRI_EXPECT(readString(in) == *text);
+          KOLIBRI_EXPECT(in.isOnEnd());
+        }
+      }
+
+      // 30 bytes left: less than the 34-byte worst case, more than the 22 bytes it needs.
+      const size_t start = kBufferCapacity - 30;
+      buffer.setSize(start);
+      writeString(buffer, shortText);
+      KOLIBRI_EXPECT_EQ(buffer.size(), start + 22);
+      Reader in{buffer.data() + start, buffer.data() + buffer.size()};
+      KOLIBRI_EXPECT(readString(in) == shortText);
+      KOLIBRI_EXPECT(in.isOnEnd());
+      buffer.clear();
+      return JNI_TRUE;
+    }
+
     jboolean overflowReturnsFalse(JNIEnv*) {
       BinaryBuffer& buffer = BinaryBuffer::shared();
       // 40k doubles = 320 KiB > kBufferCapacity (256 KiB). Never grows: reports and clears.
@@ -200,6 +242,7 @@ namespace expo::kolibri::tests {
         .method<&claimSemantics>("nativeClaimSemantics")
         .method<&cppRoundTrips>("nativeCppRoundTrips")
         .method<&overflowReturnsFalse>("nativeOverflowReturnsFalse")
+        .method<&nonAsciiStringLayouts>("nativeNonAsciiStringLayouts")
         .commit();
   }
 } // namespace expo::kolibri::tests

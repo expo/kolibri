@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -12,10 +13,18 @@
 namespace expo::kolibri::binary {
   inline bool isAllAscii(
     const char* data,
-    const size_t size
+    size_t size
   ) {
-    for (size_t i = 0; i < size; i++) {
-      if (static_cast<unsigned char>(data[i]) >= 0x80) {
+    // Eight bytes at a time, then the tail.
+    for (; size >= sizeof(uint64_t); data += sizeof(uint64_t), size -= sizeof(uint64_t)) {
+      uint64_t word;
+      std::memcpy(&word, data, sizeof(word));
+      if (word & 0x8080808080808080ULL) {
+        return false;
+      }
+    }
+    for (; size > 0; ++data, --size) {
+      if (static_cast<unsigned char>(*data) >= 0x80) {
         return false;
       }
     }

@@ -18,6 +18,7 @@ class BinaryCodecTests : NativeTestBase() {
   private external fun nativeClaimSemantics(): Boolean
   private external fun nativeCppRoundTrips(): Boolean
   private external fun nativeOverflowReturnsFalse(): Boolean
+  private external fun nativeNonAsciiStringLayouts(): Boolean
 
   @Test
   fun `a Kotlin-encoded payload decodes correctly in C++`() {
@@ -99,5 +100,10 @@ class BinaryCodecTests : NativeTestBase() {
     assertTrue(nativeOverflowReturnsFalse())
     val tooBig = DoubleArray(40_000)
     assertEquals(DID_NOT_FIT, BinaryBuffer.shared().encodeValue(tooBig))
+  }
+
+  @Test
+  fun `a C++-encoded non-ASCII string round-trips at any offset and length`() {
+    assertTrue(nativeNonAsciiStringLayouts())
   }
 }

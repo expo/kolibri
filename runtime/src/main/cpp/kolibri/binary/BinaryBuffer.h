@@ -83,7 +83,12 @@ namespace expo::kolibri::binary {
 
     template<typename T>
     void write(T value) requires(std::is_arithmetic_v<T>) {
-      writeBytes(&value, sizeof(value));
+      // A fixed-size store, not writeBytes(&value, sizeof(value)): that leaves the copy length to
+      // the inliner, and when writeBytes is not inlined (GCC 13 -O2 leaves it out of line) every
+      // scalar costs a call plus a variable-length memcpy instead of one store.
+      require(sizeof(T));
+      std::memcpy(data_.get() + size_, &value, sizeof(T));
+      size_ += sizeof(T);
     }
 
     template<typename T>
