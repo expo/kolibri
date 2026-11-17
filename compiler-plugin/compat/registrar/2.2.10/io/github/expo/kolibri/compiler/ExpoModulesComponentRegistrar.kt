@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 
 /**
- * Entry point of the Kolibri Kotlin compiler plugin (Kotlin 2.2.0 - 2.2.21: `pluginId` is not part
+ * Entry point of the Kolibri Kotlin compiler plugin (Kotlin 2.2.10 - 2.2.21: `pluginId` is not part
  * of [CompilerPluginRegistrar] yet).
  *
  * It wires the FIR frontend extensions (declaration generation, checkers) and the IR backend

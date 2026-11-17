@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.psi.KtParameter
  * readable compile error at its source location — never an internal-compiler-error from the IR
  * transformer (whose `require` guards remain only as a backstop).
  *
- * Kotlin 2.2.0 - 2.2.10 variant: factories are free-standing and their renderer is registered with
+ * Kotlin 2.2.10 variant: factories are free-standing and their renderer is registered with
  * the global [RootDiagnosticRendererFactory].
  */
 object KolibriDiagnostics {

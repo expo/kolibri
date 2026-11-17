@@ -63,7 +63,7 @@ Kotlin, so nothing in your build refers to it directly. The `runtime` jar, the `
 and the Gradle plugin itself are the same for every release.
 
 Every release in [`gradle/kotlin-versions.txt`](gradle/kotlin-versions.txt) is built and tested on
-CI: 2.2.0, 2.2.10, 2.2.20, 2.2.21, 2.3.0, 2.3.10, 2.3.20, 2.3.21, 2.4.0, 2.4.10 and 2.4.20. A Kotlin
+CI: 2.2.10, 2.2.20, 2.2.21, 2.3.0, 2.3.10, 2.3.20, 2.3.21, 2.4.0, 2.4.10, 2.4.20 and 2.4.21. A Kotlin
 release outside that list has no compiler-plugin artifact, and the build fails resolving it.
 
 ### Building locally
