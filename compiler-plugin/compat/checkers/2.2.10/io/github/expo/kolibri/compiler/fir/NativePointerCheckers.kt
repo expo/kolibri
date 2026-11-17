@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 
 /**
- * Plugs [NativeMethodCheck] into the FIR checker API of Kotlin 2.2.0 - 2.2.10: `check` takes the
+ * Plugs [NativeMethodCheck] into the FIR checker API of Kotlin 2.2.10: `check` takes the
  * context and reporter as plain parameters, and the context tracks containing declarations as FIR
  * elements.
  *
