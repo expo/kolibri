@@ -1,6 +1,5 @@
 // FIR_IDENTICAL
 // DUMP_IR
-// FIR_DUMP
 
 package io.github.expo.kolibri
 
@@ -24,20 +23,23 @@ class Overloaded(pointer: Long) : NativeBase(pointer) {
     @NativeMethod external fun foo(a: Int, b: Int): Int
 }
 
+// Every `getDeclaredMethod` result gets an explicit `!!`. Kotlin 2.2.20 started to wrap implicit
+// platform-type dereferences in an `IMPLICIT_NOTNULL` cast, so without it the IR dump differs
+// between Kotlin releases and this file would need a separate copy per release.
 fun box(): String {
     val cls = Handle::class.java
 
     // The plugin generates a private native overload `isNumber(pointer: Long)` (same name, `(J)` sig).
-    val stub = cls.getDeclaredMethod("isNumber", Long::class.javaPrimitiveType)
+    val stub = cls.getDeclaredMethod("isNumber", Long::class.javaPrimitiveType)!!
     if (!Modifier.isNative(stub.modifiers)) return "Fail: isNumber(Long) is not native"
     if (!Modifier.isPrivate(stub.modifiers)) return "Fail: isNumber(Long) is not private"
 
     // ...and rewrites the original into a plain (non-native) delegate.
-    val original = cls.getDeclaredMethod("isNumber")
+    val original = cls.getDeclaredMethod("isNumber")!!
     if (Modifier.isNative(original.modifiers)) return "Fail: isNumber is still native"
 
     // Method arguments are carried after the leading pointer: add(x) -> add(pointer, x).
-    val addStub = cls.getDeclaredMethod("add", Long::class.javaPrimitiveType, Int::class.javaPrimitiveType)
+    val addStub = cls.getDeclaredMethod("add", Long::class.javaPrimitiveType, Int::class.javaPrimitiveType)!!
     if (addStub.returnType != Int::class.javaPrimitiveType) return "Fail: add(Long, Int) has wrong return type"
 
     val overloaded = Overloaded::class.java
@@ -45,16 +47,16 @@ fun box(): String {
     val int = Int::class.javaPrimitiveType
 
     // Each overload keeps its own native stub and each original becomes a non-native delegate.
-    if (!Modifier.isNative(overloaded.getDeclaredMethod("foo", long, int).modifiers)) {
+    if (!Modifier.isNative(overloaded.getDeclaredMethod("foo", long, int)!!.modifiers)) {
         return "Fail: foo(Long, Int) is not native"
     }
-    if (!Modifier.isNative(overloaded.getDeclaredMethod("foo", long, int, int).modifiers)) {
+    if (!Modifier.isNative(overloaded.getDeclaredMethod("foo", long, int, int)!!.modifiers)) {
         return "Fail: foo(Long, Int, Int) is not native"
     }
-    if (Modifier.isNative(overloaded.getDeclaredMethod("foo", int).modifiers)) {
+    if (Modifier.isNative(overloaded.getDeclaredMethod("foo", int)!!.modifiers)) {
         return "Fail: foo(Int) is still native"
     }
-    if (Modifier.isNative(overloaded.getDeclaredMethod("foo", int, int).modifiers)) {
+    if (Modifier.isNative(overloaded.getDeclaredMethod("foo", int, int)!!.modifiers)) {
         return "Fail: foo(Int, Int) is still native"
     }
 

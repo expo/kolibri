@@ -18,6 +18,8 @@ open class AbstractJvmDiagnosticTest : AbstractFirPhasedDiagnosticTest(FirParser
   override fun configure(builder: TestConfigurationBuilder) = with(builder) {
     super.configure(builder)
     defaultDirectives {
+      // These tests stop after the frontend (RUN_PIPELINE_TILL: FRONTEND), so there is no IR to dump.
+      // The FIR dump shows which stubs the generator declared, also for the invalid code.
       +FirDiagnosticsDirectives.FIR_DUMP
       +JvmEnvironmentConfigurationDirectives.FULL_JDK
 

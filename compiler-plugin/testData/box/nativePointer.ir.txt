@@ -179,20 +179,22 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
         CALL 'public final fun <get-java> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-java>>): java.lang.Class<T of kotlin.jvm.<get-java>> declared in kotlin.jvm' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=GET_PROPERTY
           TYPE_ARG T: io.github.expo.kolibri.Handle
           ARG <this>: CLASS_REFERENCE 'CLASS CLASS name:Handle modality:FINAL visibility:public superTypes:[io.github.expo.kolibri.NativeBase]' type=kotlin.reflect.KClass<io.github.expo.kolibri.Handle>
-      VAR name:stub type:@[FlexibleNullability] java.lang.reflect.Method? [val]
-        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
-          ARG p0: CONST String type=kotlin.String value="isNumber"
-          ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
-              TYPE_ARG T: kotlin.Long
-              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
+      VAR name:stub type:java.lang.reflect.Method [val]
+        CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+          TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+          ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+            ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+            ARG p0: CONST String type=kotlin.String value="isNumber"
+            ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+              CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
+                TYPE_ARG T: kotlin.Long
+                ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
             ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
               ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-                ARG <this>: GET_VAR 'val stub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                ARG <this>: GET_VAR 'val stub: java.lang.reflect.Method declared in io.github.expo.kolibri.box' type=java.lang.reflect.Method origin=null
           then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
             CONST String type=kotlin.String value="Fail: isNumber(Long) is not native"
       WHEN type=kotlin.Unit origin=IF
@@ -200,37 +202,41 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
           if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
             ARG <this>: CALL 'public open fun isPrivate (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
               ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-                ARG <this>: GET_VAR 'val stub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                ARG <this>: GET_VAR 'val stub: java.lang.reflect.Method declared in io.github.expo.kolibri.box' type=java.lang.reflect.Method origin=null
           then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
             CONST String type=kotlin.String value="Fail: isNumber(Long) is not private"
-      VAR name:original type:@[FlexibleNullability] java.lang.reflect.Method? [val]
-        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
-          ARG p0: CONST String type=kotlin.String value="isNumber"
+      VAR name:original type:java.lang.reflect.Method [val]
+        CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+          TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+          ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+            ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+            ARG p0: CONST String type=kotlin.String value="isNumber"
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
             ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-              ARG <this>: GET_VAR 'val original: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+              ARG <this>: GET_VAR 'val original: java.lang.reflect.Method declared in io.github.expo.kolibri.box' type=java.lang.reflect.Method origin=null
           then: RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
             CONST String type=kotlin.String value="Fail: isNumber is still native"
-      VAR name:addStub type:@[FlexibleNullability] java.lang.reflect.Method? [val]
-        CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-          ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
-          ARG p0: CONST String type=kotlin.String value="add"
-          ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
-              TYPE_ARG T: kotlin.Long
-              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
-            CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
-              TYPE_ARG T: kotlin.Int
-              ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
+      VAR name:addStub type:java.lang.reflect.Method [val]
+        CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+          TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+          ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+            ARG <this>: GET_VAR 'val cls: java.lang.Class<io.github.expo.kolibri.Handle> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Handle> origin=null
+            ARG p0: CONST String type=kotlin.String value="add"
+            ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+              CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Long>? origin=GET_PROPERTY
+                TYPE_ARG T: kotlin.Long
+                ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Long modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Long>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Long>
+              CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
+                TYPE_ARG T: kotlin.Int
+                ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=EXCLEQ
             ARG <this>: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
               ARG arg0: CALL 'public open fun getReturnType (): @[FlexibleNullability] java.lang.Class<*>? declared in java.lang.reflect.Method' type=@[FlexibleNullability] java.lang.Class<*>? origin=GET_PROPERTY
-                ARG <this>: GET_VAR 'val addStub: @[FlexibleNullability] java.lang.reflect.Method? declared in io.github.expo.kolibri.box' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                ARG <this>: GET_VAR 'val addStub: java.lang.reflect.Method declared in io.github.expo.kolibri.box' type=java.lang.reflect.Method origin=null
               ARG arg1: CALL 'public final fun <get-javaPrimitiveType> <T> (<this>: kotlin.reflect.KClass<T of kotlin.jvm.<get-javaPrimitiveType>>): java.lang.Class<T of kotlin.jvm.<get-javaPrimitiveType>>? declared in kotlin.jvm' type=java.lang.Class<kotlin.Int>? origin=GET_PROPERTY
                 TYPE_ARG T: kotlin.Int
                 ARG <this>: CLASS_REFERENCE 'CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Int modality:FINAL visibility:public superTypes:[kotlin.Number; kotlin.Comparable<kotlin.Int>; java.io.Serializable]' type=kotlin.reflect.KClass<kotlin.Int>
@@ -253,12 +259,14 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
           if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
             ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
               ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-                ARG <this>: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
-                  ARG p0: CONST String type=kotlin.String value="foo"
-                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-                    GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
-                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                ARG <this>: CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+                  TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+                  ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                    ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                    ARG p0: CONST String type=kotlin.String value="foo"
+                    ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                      GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
           then: BLOCK type=kotlin.Unit origin=null
             RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
               CONST String type=kotlin.String value="Fail: foo(Long, Int) is not native"
@@ -267,13 +275,15 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
           if: CALL 'public final fun not (): kotlin.Boolean declared in kotlin.Boolean' type=kotlin.Boolean origin=null
             ARG <this>: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
               ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-                ARG <this>: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
-                  ARG p0: CONST String type=kotlin.String value="foo"
-                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-                    GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
-                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
-                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                ARG <this>: CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+                  TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+                  ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                    ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                    ARG p0: CONST String type=kotlin.String value="foo"
+                    ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                      GET_VAR 'val long: java.lang.Class<kotlin.Long>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Long>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                      GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
           then: BLOCK type=kotlin.Unit origin=null
             RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
               CONST String type=kotlin.String value="Fail: foo(Long, Int, Int) is not native"
@@ -281,11 +291,13 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
         BRANCH
           if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
             ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-              ARG <this>: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-                ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
-                ARG p0: CONST String type=kotlin.String value="foo"
-                ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-                  GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+              ARG <this>: CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+                TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+                ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                  ARG p0: CONST String type=kotlin.String value="foo"
+                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
           then: BLOCK type=kotlin.Unit origin=null
             RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
               CONST String type=kotlin.String value="Fail: foo(Int) is still native"
@@ -293,12 +305,14 @@ FILE fqName:io.github.expo.kolibri fileName:/nativePointer.kt
         BRANCH
           if: CALL 'public open fun isNative (p0: kotlin.Int): kotlin.Boolean declared in java.lang.reflect.Modifier' type=kotlin.Boolean origin=null
             ARG p0: CALL 'public open fun getModifiers (): kotlin.Int declared in java.lang.reflect.Method' type=kotlin.Int origin=GET_PROPERTY
-              ARG <this>: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
-                ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
-                ARG p0: CONST String type=kotlin.String value="foo"
-                ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
-                  GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
-                  GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+              ARG <this>: CALL 'public final fun CHECK_NOT_NULL <T0> (arg0: T0 of kotlin.internal.ir.CHECK_NOT_NULL?): {T0 of kotlin.internal.ir.CHECK_NOT_NULL & Any} declared in kotlin.internal.ir' type=java.lang.reflect.Method origin=EXCLEXCL
+                TYPE_ARG T0: @[FlexibleNullability] java.lang.reflect.Method
+                ARG arg0: CALL 'public open fun getDeclaredMethod (p0: @[FlexibleNullability] kotlin.String?, vararg p1: @[FlexibleNullability] java.lang.Class<*>?): @[FlexibleNullability] java.lang.reflect.Method? declared in java.lang.Class' type=@[FlexibleNullability] java.lang.reflect.Method? origin=null
+                  ARG <this>: GET_VAR 'val overloaded: java.lang.Class<io.github.expo.kolibri.Overloaded> declared in io.github.expo.kolibri.box' type=java.lang.Class<io.github.expo.kolibri.Overloaded> origin=null
+                  ARG p0: CONST String type=kotlin.String value="foo"
+                  ARG p1: VARARG type=@[FlexibleNullability] @[FlexibleArrayElementVariance] kotlin.Array<out @[FlexibleNullability] java.lang.Class<*>?>? varargElementType=@[FlexibleNullability] java.lang.Class<*>?
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
+                    GET_VAR 'val int: java.lang.Class<kotlin.Int>? declared in io.github.expo.kolibri.box' type=java.lang.Class<kotlin.Int>? origin=null
           then: BLOCK type=kotlin.Unit origin=null
             RETURN type=kotlin.Nothing from='public final fun box (): kotlin.String declared in io.github.expo.kolibri'
               CONST String type=kotlin.String value="Fail: foo(Int, Int) is still native"
